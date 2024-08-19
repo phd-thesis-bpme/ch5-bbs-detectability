@@ -14,12 +14,6 @@ library(napops)
 library(ggforce)
 theme_set(theme_pubclean())
 
-####### Set Constants #############################
-
-
-####### Read Data #################################
-
-
 ####### Main Code #################################
 
 # Create the maps
@@ -107,6 +101,11 @@ detect_3 <- ggplot() +
   theme(legend.position = "none") +
   NULL
 
+####### Output ####################################
+
+png(filename = "output/plots/detectability-change.png",
+    width = 6, height = 6, units = "in", res = 300)
 ggarrange(m1_plot, m2_plot, m3_plot,
           detect_1, detect_2, detect_3,
           ncol = 3, nrow = 2)
+dev.off()
