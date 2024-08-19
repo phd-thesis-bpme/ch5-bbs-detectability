@@ -148,7 +148,7 @@ for (i in 1:length(species_list))
   
   model_run <- run_model(model_data = mod_prepped,
                          chains = 4,
-                         parallel_chains = 2,
+                         parallel_chains = 4,
                          output_basename = paste0(sp_code, "-detectability_RH"),
                          output_dir = "output/model_runs",
                          overwrite = TRUE)
