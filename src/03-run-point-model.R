@@ -55,11 +55,17 @@ for (i in 1:length(species_list))
   route_original_list <- strsplit(mod_prepped$raw_data$route,
                              split = "-",
                              fixed = TRUE)
-  mod_prepped$raw_data$route_original <- paste0(sapply(route_original_list, "[[", 2),
+  route_original <- paste0(sapply(route_original_list, "[[", 2),
                            "-",
                            sapply(route_original_list, "[[", 3))
-  mod_prepped$model_data$route_original <- as.numeric(as.factor(mod_prepped$raw_data$route_original))
-  mod_prepped$model_data$n_route_original <- length(unique(mod_prepped$model_data$route_original))
+  route_original <- as.numeric(as.factor(route_original))
+  mod_prepped$model_data$n_route_original <- length(unique(route_original))
+  
+  route_lookup <- data.frame(Site = mod_prepped$model_data$site,
+                             Route = route_original)
+  route_lookup <- route_lookup[!duplicated(route_lookup$Site), ]
+  route_lookup <- route_lookup[order(route_lookup$Site), ]
+  mod_prepped$model_data$route_lookup <- as.vector(route_lookup$Route)
   
   model_run <- run_model(model_data = mod_prepped,
                          output_basename = paste0(sp_out, "-point_RH"),

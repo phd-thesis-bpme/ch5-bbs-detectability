@@ -24,7 +24,6 @@ data {
   int<lower=1> n_strata;
   int<lower=1> n_counts;
   int<lower=1> n_years;
-  int<lower=1> n_route_original;
 
   array[n_counts] int<lower=0> count;              // count observations
   array[n_counts] int<lower=1> strat;               // strata indicators
@@ -32,7 +31,6 @@ data {
   array[n_counts] int<lower=1> site; // site index
   array[n_counts] int<lower=0> first_year; // first year index
   array[n_counts] int<lower=1> observer;              // observer indicators
-  array[n_counts] int<lower=1> route_original; //original route index for hyperparameter
 
   int<lower=1> n_observers;// number of observers
 
@@ -46,6 +44,9 @@ data {
 
   array[n_strata] real non_zero_weight; //proportion of the sites in the stratum included - scaling factor
 
+  // data for route-level hyperparameters
+  int<lower=1> n_route_original;
+  array[n_sites] int<lower=1> route_lookup; // lookup vector for which site belongs to which route
 
   // data for spline s(year)
   int<lower=1> n_knots_year;  // number of knots in the basis function for year
@@ -92,10 +93,6 @@ transformed data {
      array[n_test] int site_te = site[test];
      array[n_test] int first_year_te = first_year[test];
      array[n_test] int observer_te = observer[test];
-
-
-
-
 }
 
 
@@ -174,7 +171,7 @@ for(s in 1:n_strata){
     real noise;
     real obs = sdobs*obs_raw[observer_tr[i]];
     real strata = (sdstrata*strata_raw[strat_tr[i]]) + STRATA;
-    real ste = sdste*ste_raw[site_tr[i]] + ROUTE[route_original[i]]; // site intercepts
+    real ste = sdste*ste_raw[site_tr[i]] + ROUTE[route_lookup[site_tr[i]]]; // site intercepts
     if(use_pois){
     noise = sdnoise*noise_raw[i];
     }else{
@@ -245,7 +242,7 @@ model {
 
 
 for(k in 1:n_knots_year){
-    beta_raw[,k] ~ icar_normal(n_strata, node1, node2);;
+    beta_raw[,k] ~ icar_normal(n_strata, node1, node2);
 }
    strata_raw ~ icar_normal(n_strata, node1, node2);
     //sum(strata_raw) ~ normal(0,0.001*n_strata);
@@ -289,7 +286,7 @@ if(use_pois){
     real noise;
     real obs = sdobs*obs_raw[observer_te[i]];
     real strata = (sdstrata*strata_raw[strat_te[i]]) + STRATA;
-    real ste = sdste*ste_raw[site_te[i]]; // site intercepts
+    real ste = sdste*ste_raw[site_te[i]] + ROUTE[route_lookup[site_te[i]]]; // site intercepts
 
    if(use_pois){
       if(heavy_tailed){
@@ -348,7 +345,7 @@ for(y in 1:n_years){
 
         for(t in 1:n_obs_sites_strata[s]){  //n_obs_sites_strata max_n_obs_sites_strata
 
-  real ste = sdste*ste_raw[ste_mat[s,t]]; // site intercepts
+  real ste = sdste*ste_raw[ste_mat[s,t]] + ROUTE[route_lookup[ste_mat[s,t]]]; // site intercepts
   real obs = sdobs*obs_raw[obs_mat[s,t]]; // site intercepts
 
 
