@@ -174,7 +174,7 @@ for(s in 1:n_strata){
     real noise;
     real obs = sdobs*obs_raw[observer_tr[i]];
     real strata = (sdstrata*strata_raw[strat_tr[i]]) + STRATA;
-    real ste = sdste*ste_raw[site_tr[i]] + ROUTE[route_lookup[site_tr[i]]];; // site intercepts
+    real ste = sdste*ste_raw[site_tr[i]] + ROUTE[route_lookup[site_tr[i]]]; // site intercepts
     if(use_pois){
     noise = sdnoise*noise_raw[i];
     }else{
@@ -247,6 +247,8 @@ model {
 
   STRATA ~ normal(0,1);// prior on fixed effect mean intercept
   eta ~ normal(0,1);// prior on first-year observer effect
+  
+  ROUTE ~ std_normal();
 
 
 
@@ -295,7 +297,7 @@ if(use_pois){
     real noise;
     real obs = sdobs*obs_raw[observer_te[i]];
     real strata = (sdstrata*strata_raw[strat_te[i]]) + STRATA;
-    real ste = sdste*ste_raw[site_te[i]] + ROUTE[route_lookup[site_te[i]]];; // site intercepts
+    real ste = sdste*ste_raw[site_te[i]] + ROUTE[route_lookup[site_te[i]]]; // site intercepts
 
    if(use_pois){
       if(heavy_tailed){
@@ -354,7 +356,7 @@ for(y in 1:n_years){
 
         for(t in 1:n_obs_sites_strata[s]){  //n_obs_sites_strata max_n_obs_sites_strata
 
-  real ste = sdste*ste_raw[ste_mat[s,t]] + ROUTE[route_lookup[ste_mat[s,t]]];; // site intercepts
+  real ste = sdste*ste_raw[ste_mat[s,t]] + ROUTE[route_lookup[ste_mat[s,t]]]; // site intercepts
   real obs = sdobs*obs_raw[obs_mat[s,t]]; // site intercepts
 
 
