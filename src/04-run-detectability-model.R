@@ -3,7 +3,7 @@
 # BBS Point Level
 # <04-run-detectability-model.R>
 # Created June 2024
-# Last Updated June 2024
+# Last Updated August 2024
 
 ####### Import Libraries and External Files #######
 
@@ -52,9 +52,24 @@ for (i in 1:length(species_list))
     prepare_spatial(strata_map = load_map(st))
   
   mod_prepped <- prepare_model(prepared_data = prepared_data,
-                               model_file = "models/gamye_spatial_detectability.stan", 
+                               model_file = "models/gamye_spatial_detectability_RH.stan", 
                                model = "gamye", 
                                model_variant = "spatial")
+  
+  route_original_list <- strsplit(mod_prepped$raw_data$route,
+                                  split = "-",
+                                  fixed = TRUE)
+  route_original <- paste0(sapply(route_original_list, "[[", 2),
+                           "-",
+                           sapply(route_original_list, "[[", 3))
+  route_original <- as.numeric(as.factor(route_original))
+  mod_prepped$model_data$n_route_original <- length(unique(route_original))
+  
+  route_lookup <- data.frame(Site = mod_prepped$model_data$site,
+                             Route = route_original)
+  route_lookup <- route_lookup[!duplicated(route_lookup$Site), ]
+  route_lookup <- route_lookup[order(route_lookup$Site), ]
+  mod_prepped$model_data$route_lookup <- as.vector(route_lookup$Route)
   
   
   #' Consider doing this stuff below (i.e. extracting the ordinal day and other
@@ -134,7 +149,7 @@ for (i in 1:length(species_list))
   model_run <- run_model(model_data = mod_prepped,
                          chains = 4,
                          parallel_chains = 2,
-                         output_basename = paste0(sp_code, "-detectability"),
+                         output_basename = paste0(sp_code, "-detectability_RH"),
                          output_dir = "output/model_runs",
                          overwrite = TRUE)
 }
