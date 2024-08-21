@@ -20,8 +20,8 @@ sp <- sp_list
 #for (sp in sp_list)
 #{
   route_indices <- readRDS(file = paste0("output/indices/", sp, "_route.RDS"))
-  point_indices <- readRDS(file = paste0("output/indices/", sp, "_point.RDS"))
-  detect_indices <- readRDS(file = paste0("output/indices/", sp, "_detectability.RDS"))
+  point_indices <- readRDS(file = paste0("output/indices/", sp, "_point_RH.RDS"))
+  detect_indices <- readRDS(file = paste0("output/indices/", sp, "_detectability_RH.RDS"))
   varprop_indices <- readRDS(file = paste0("output/indices/", sp, "_varprop.RDS"))
   
   route_trends <- generate_trends(indices = route_indices)
@@ -48,20 +48,20 @@ sp <- sp_list
   
   ####### Output ####################################
   
-  png(filename = paste0("output/plots/", sp, "-map.png"),
+  png(filename = paste0("output/plots/", sp, "-map_RH.png"),
       width = 20, height = 6, units = "in", res = 300)
   ggarrange(trend_map_route, trend_map_point, trend_map_varprop, nrow = 1,
             labels = c("Route", "Point", "Detectability", "Varprop"))
   dev.off()
   
-  png(filename = paste0("output/plots/", sp, "-trajectory.png"),
+  png(filename = paste0("output/plots/", sp, "-trajectory_RH.png"),
       width = 20, height = 6, units = "in", res = 300)
   ggarrange(indices_plot_route$continent, indices_plot_point$continent, indices_plot_varprop$continent,
             nrow = 1,
             labels = c("Route", "Point", "Detectability", "Varprop"))
   dev.off()  
   
-  png(filename = paste0("output/plots/", sp, "-combined.png"),
+  png(filename = paste0("output/plots/", sp, "-combined_RH.png"),
       width = 6, height = 8, units = "in", res = 300)
   ggarrange(  ggarrange(trend_map_route, trend_map_point, trend_map_varprop, ncol = 1,
                         common.legend = TRUE),

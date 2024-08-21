@@ -21,7 +21,7 @@ sp <- "OVEN"
 ####### Read Data #################################
 
 route_indices <- readRDS(file = paste0("output/indices/", sp, "_route.RDS"))
-point_indices <- readRDS(file = paste0("output/indices/", sp, "_point.RDS"))
+point_indices <- readRDS(file = paste0("output/indices/", sp, "_point_RH.RDS"))
 
 ####### Compare Indices ###########################
 
@@ -119,10 +119,10 @@ trend_comp_plot <- ggplot(data = to_plot, aes(x = point, y = route)) +
 
 ####### Output ####################################
 
-write.table(file = "output/index_comp_model.csv", x = index_mod_summary, sep = ",", row.names = FALSE)
-write.table(file = "output/trend_comp_model.csv", x = trend_mod_summary, sep = ",", row.names = FALSE)
+write.table(file = "output/index_comp_model_RH.csv", x = index_mod_summary, sep = ",", row.names = FALSE)
+write.table(file = "output/trend_comp_model_RH.csv", x = trend_mod_summary, sep = ",", row.names = FALSE)
 
-png(filename = "output/plots/route-vs-point.png",
+png(filename = "output/plots/route-vs-point_RH.png",
     width = 6, height = 3, res = 300, units = "in")
 ggarrange(indices_comp_plot, trend_comp_plot, nrow = 1,
           labels = c("A", "B"))
