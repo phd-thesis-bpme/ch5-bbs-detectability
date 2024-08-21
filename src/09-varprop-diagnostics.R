@@ -90,10 +90,10 @@ percept_plot <- bayesplot::mcmc_areas(varprop_model$model_fit$draws("xi")) +
 
 ####### Output ####################################
 
-write.table(x = mod_summary, file = "output/varprop_comparison_mod_mid.csv", sep = ",", row.names = FALSE)
+write.table(x = mod_summary, file = "output/varprop_comparison_mod.csv", sep = ",", row.names = FALSE)
 write.table(x = varprop_summary, file = "output/varprop_summary.csv", sep = ",", row.names = FALSE)
 
-png(filename = paste0("output/plots/varprop-diagnostics_mid.png"),
+png(filename = paste0("output/plots/varprop-diagnostics.png"),
     width = 6, height = 4, res = 600, units = "in")
 ggarrange(comp_plot, ggarrange(avail_plot, percept_plot, nrow = 2,
                                labels = c("B", "C")), nrow = 1,

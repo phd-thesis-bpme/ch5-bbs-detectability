@@ -62,8 +62,6 @@ index_comp_model_run <- index_comp_model$sample(
 
 index_mod_summary <- index_comp_model_run$summary()
 
-#indices_slope_plot <- bayesplot::mcmc_areas(index_comp_model_run$draws("BETA"), prob = 0.95)
-
 index_comp_model_draws <- index_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
 
 to_plot <- data.frame(point = index_model_data$point_index,
@@ -123,10 +121,10 @@ trend_comp_plot <- ggplot(data = to_plot, aes(x = point, y = route)) +
 
 ####### Output ####################################
 
-write.table(file = "output/index_comp_model_mid.csv", x = index_mod_summary, sep = ",", row.names = FALSE)
+write.table(file = "output/index_comp_model.csv", x = index_mod_summary, sep = ",", row.names = FALSE)
 write.table(file = "output/trend_comp_model.csv", x = trend_mod_summary, sep = ",", row.names = FALSE)
 
-png(filename = "output/plots/route-vs-point_mid.png",
+png(filename = "output/plots/route-vs-point.png",
     width = 6, height = 3, res = 300, units = "in")
 ggarrange(indices_comp_plot, trend_comp_plot, nrow = 1,
           labels = c("A", "B"))
