@@ -73,7 +73,7 @@ comp_plot <- ggplot(data = to_plot, aes(x = detect, y = varprop)) +
   geom_abline(intercept = mean(model_draws$intercept),
               slope = mean(model_draws$BETA),
               color = "black", size = 1) +
-  geom_point(alpha = 0.1) +
+  geom_point(alpha = 0.3) +
   xlab("Index of Abundance (DETECT)") +
   ylab("Index of Abundance (VARPROP)") +
   NULL
