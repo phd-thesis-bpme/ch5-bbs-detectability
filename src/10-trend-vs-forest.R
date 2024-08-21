@@ -1,9 +1,9 @@
 ####### Script Information ########################
 # Brandon P.M. Edwards
 # BBS Point Level
-# <10-point-vs-detectability.R>
+# <10-trend-vs-forest.R>
 # Created March 2024
-# Last Updated June 2024
+# Last Updated August 2024
 
 ####### Import Libraries and External Files #######
 
