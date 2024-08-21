@@ -3,7 +3,7 @@
 # BBS Point Level
 # 09-varprop-diagnostics.R
 # Created May 2024
-# Last Updated June 2024
+# Last Updated August 2024
 
 ####### Import Libraries and External Files #######
 
@@ -16,6 +16,7 @@ bayesplot::color_scheme_set("gray")
 ####### Set Constants #############################
 
 sp <- "OVEN"
+mid_year <- 2016
 
 ####### Read Data #################################
 
@@ -41,11 +42,14 @@ varprop_df$yr_region <- paste0(varprop_df$year, "-", varprop_df$region)
 region_order <- match(detect_df$yr_region, varprop_df$yr_region)
 varprop_df <- varprop_df[region_order, ]
 
-model_data <- list(N = nrow(detect_df),
-                   n_strata = length(unique(detect_df$region)),
-                   detect_index = detect_df$index ,
-                   varprop_index = varprop_df$index,
-                   stratum = as.numeric(factor(detect_df$region)))
+detect_df_mid <- detect_df[which(detect_df$year == mid_year), ]
+varprop_df_mid <- varprop_df[which(varprop_df$year == mid_year), ]
+
+model_data <- list(N = nrow(detect_df_mid),
+                   n_strata = length(unique(detect_df_mid$region)),
+                   detect_index = detect_df_mid$index ,
+                   varprop_index = varprop_df_mid$index,
+                   stratum = as.numeric(factor(detect_df_mid$region)))
 
 model <- cmdstan_model(stan_file = "models/detect-vs-varprop.stan")
 
@@ -86,10 +90,10 @@ percept_plot <- bayesplot::mcmc_areas(varprop_model$model_fit$draws("xi")) +
 
 ####### Output ####################################
 
-write.table(x = mod_summary, file = "output/varprop_comparison_mod.csv", sep = ",", row.names = FALSE)
+write.table(x = mod_summary, file = "output/varprop_comparison_mod_mid.csv", sep = ",", row.names = FALSE)
 write.table(x = varprop_summary, file = "output/varprop_summary.csv", sep = ",", row.names = FALSE)
 
-png(filename = paste0("output/plots/varprop-diagnostics.png"),
+png(filename = paste0("output/plots/varprop-diagnostics_mid.png"),
     width = 6, height = 4, res = 600, units = "in")
 ggarrange(comp_plot, ggarrange(avail_plot, percept_plot, nrow = 2,
                                labels = c("B", "C")), nrow = 1,
