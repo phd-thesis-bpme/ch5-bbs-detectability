@@ -246,13 +246,19 @@ A posterior distribution that centres reasonably close to 0 implies that there i
 
 \par We are interested to see how the incorporation of detectability affects index and trend estimates of Ovenbird.
 In particular, we are interested in seeing if including detectability in the BBS trend model can possibly correct for systematic biases that may be present due to changing forest coverage.
-%For example, consider a BBS point that has undergone signficant forest coverage change over the last decade (Figure TO DO).
-%At the beginning of the decade, suppose this point was heavily forested, and was territory for eight Ovenbirds. 
-%Because detectability in forested areas is generally lower than open areas due to sound attenuation \citep{yip_sound_2017}, we might expect an average observer to only detect, say, 30\% of these eight Ovenbirds, given they give a cue (i.e., sing) during the 3-minute point count.
-%If, a decade later, this point has the same number of Ovenbirds but with much less forest coverage, we might expect an average observer to detect a higher percentage of Ovenbirds (say, 80\%), because the Ovenbird song would attenuate less over the more open environment.
-%Without accounting for detectability, this may appear to be a population increase, whereas in reality the population has actually remained steady.
+For example, consider a BBS point that has undergone significant forest coverage change over the last decade (Figure \ref{fig:example}).
+At the beginning of the decade, suppose this point was heavily forested, and was territory for ten Ovenbirds. 
+Because detectability in forested areas is generally lower than open areas due to sound attenuation \citep{yip_sound_2017}, we might expect an average observer to only detect, say, 40\% of these ten Ovenbirds, given they give a cue (i.e., sing) during the 3-minute point count.
+If, a decade later, this point has the same number of Ovenbirds but with much less forest coverage, we might expect an average observer to detect a higher percentage of Ovenbirds (say, 80\%), because the Ovenbird song would attenuate less over the more open environment.
+Without accounting for detectability, this may appear to be a population increase, whereas in reality the population has actually remained steady.
 For this comparison, we focused on trend estimates for a route that experience a particularly high change in forest coverage, such that the forest coverage at the beginning of the time series was significantly higher than the forest coverage at the end of the time series.
 Then, we compared trends and trajectories from the POINT model to those from the DETECT and VARPROP model, to assess if there was any differences given the changes in forest coverage.
+
+\begin{figure}[h]
+	\includegraphics{abundance-detectability_scaled.png}
+	\caption{TO DO}
+	\label{fig:example}
+\end{figure}
 
 \subsection{Analysis}
 \par All analyses were conducted in R version 4.3.1 \citep{r_core_team_r_2024}.
@@ -467,7 +473,7 @@ as in Equation \ref{bbs_varprop}.
 
 \section{Figures}
 
-\begin{figure}[h!]
+\begin{figure}[h]
 	\includegraphics{../output/plots/OVEN-combined.png}
 	\caption{Canada-wide trends and trajectories for Ovenbird as derived from the status-quo route model in Equation \ref{bbs} and \citet{smith_spatially_2023} (top row), the point-level model as in Equation \ref{bbs-point} (middle row), and the point-level model that includes detectability and variance propagation as in Equation \ref{bbs_varprop} (bottom row). Note we have not included the DETECT model from Equation \ref{bbs-detect} as it was used mainly for comparison to the VARPROP model. Be aware of the differences in the y-axes for each of these models: the ROUTE y-axis is the annual index of abundance per route, the POINT y-axis is the annual index of abundance per point, and the VARPROP y-axis is the expended annual index of abundance per point given perfect detectability.}
 	\label{fig:oven-combined}
