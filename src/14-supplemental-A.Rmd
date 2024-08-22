@@ -1,0 +1,28 @@
+---
+title: "Supplemental A - Comparison of Point-level Models with and without route-level
+  hyperparameter"
+author: "Brandon P.M. Edwards"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Given the structured nature of the current BBS analysis, whereby up to 50 point counts are assembled into a "route" and analyzed at the route level (by summing counts at each point), it is natural to wonder if a point-level model should consider drawing point-level effects from their own independent distributions, or if the point-level effects should be drawn from a route-level hyperparameter. This supplemental file explores the differences in indices and trends produced by point-level models with and without route-level hyperparameters. For all three of POINT, DETECT, and VARPROP, we simply compare the 1-to-1 relationship between indices and trends, respectively, for each respective model, to assess if there are any distinct patterns of bias.
+
+```{r cars, echo = FALSE}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
