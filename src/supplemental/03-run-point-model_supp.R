@@ -49,10 +49,26 @@ for (i in 1:length(species_list))
                               min_n_routes = 1) %>%
     prepare_spatial(strata_map = load_map(st)) %>%
     prepare_model(model = "gamye",
+                  model_file = "models/gamye_spatial_route_hyperparameter.stan", 
                   model_variant = "spatial")
   
+  route_original_list <- strsplit(mod_prepped$raw_data$route,
+                             split = "-",
+                             fixed = TRUE)
+  route_original <- paste0(sapply(route_original_list, "[[", 2),
+                           "-",
+                           sapply(route_original_list, "[[", 3))
+  route_original <- as.numeric(as.factor(route_original))
+  mod_prepped$model_data$n_route_original <- length(unique(route_original))
+  
+  route_lookup <- data.frame(Site = mod_prepped$model_data$site,
+                             Route = route_original)
+  route_lookup <- route_lookup[!duplicated(route_lookup$Site), ]
+  route_lookup <- route_lookup[order(route_lookup$Site), ]
+  mod_prepped$model_data$route_lookup <- as.vector(route_lookup$Route)
+  
   model_run <- run_model(model_data = mod_prepped,
-                         output_basename = paste0(sp_out, "-point"),
+                         output_basename = paste0(sp_out, "-point_RH"),
                          output_dir = "output/model_runs",
                          overwrite = TRUE)
 }
