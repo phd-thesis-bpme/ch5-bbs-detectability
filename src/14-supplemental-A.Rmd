@@ -7,22 +7,392 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(bbsBayes2)
+library(ggpubr)
+library(cmdstanr)
+library(bayesplot)
+theme_set(theme_pubclean())
+
+mid_year <- 2016
+sp <- "OVEN"
+
 ```
 
-## Introduction
+# Introduction
 
-Given the structured nature of the current BBS analysis, whereby up to 50 point counts are assembled into a "route" and analyzed at the route level (by summing counts at each point), it is natural to wonder if a point-level model should consider drawing point-level effects from their own independent distributions, or if the point-level effects should be drawn from a route-level hyperparameter. This supplemental file explores the differences in indices and trends produced by point-level models with and without route-level hyperparameters. For all three of POINT, DETECT, and VARPROP, we simply compare the 1-to-1 relationship between indices and trends, respectively, for each respective model, to assess if there are any distinct patterns of bias.
+Given the structured nature of the current BBS analysis, whereby up to 50 point counts are assembled into a "route" and analyzed at the route level (by summing counts at each point), it is natural to wonder if a point-level model should consider drawing point-level effects from their own independent distributions, i.e. $\psi_j \sim t(3,0,1)$, or if the point-level effects should be drawn from a route-level hyperparameter, i.e. $\psi_j \sim t(3, \mu_J, 1); \mu_J \sim N(0,1)$. This supplemental file explores the differences in indices and trends produced by point-level models with and without route-level hyperparameters. For all three of POINT, DETECT, and VARPROP, we simply compare the 1-to-1 relationship between indices and trends, respectively, for each respective model, to assess if there are any distinct patterns of bias.
 
-```{r cars, echo = FALSE}
-summary(cars)
+# POINT Model Comparison
+
+```{r point-index, echo=FALSE}
+point_indices <- readRDS(file = paste0("../output/indices/", sp, "_point.RDS"))
+point_RH_indices <- readRDS(file = paste0("../output/indices/", sp, "_point_RH.RDS"))
+
+regions_both <- intersect(point_indices$indices$region, point_RH_indices$indices$region)
+
+point_df <- point_indices$indices[which(point_indices$indices$region %in% regions_both &
+                                          point_indices$indices$region_type == "stratum"), ]
+point_df$yr_region <- paste0(point_df$year, "-", point_df$region)
+
+point_RH_df <- point_RH_indices$indices[which(point_RH_indices$indices$region %in% regions_both &
+                                          point_RH_indices$indices$region_type == "stratum"), ]
+point_RH_df$yr_region <- paste0(point_RH_df$year, "-", point_RH_df$region)
+
+# Make sure order of indices align
+region_order <- match(point_df$yr_region, point_RH_df$yr_region)
+point_RH_df <- point_RH_df[region_order, ]
+
+point_df_mid <- point_df[which(point_df$year == mid_year), ]
+point_df_RH_mid <- point_RH_df[which(point_RH_df$year == mid_year), ]
+
+index_model_data <- list(N = nrow(point_df_mid),
+                   y = point_df_RH_mid$index,
+                   x = point_df_mid$index,
+                   beta_mean_prior = 1)
+
+index_comp_model <- cmdstan_model(stan_file = "../models/slr-model.stan")
+
+index_comp_model_run <- index_comp_model$sample(
+  data = index_model_data,
+  iter_warmup = 1000,
+  iter_sampling = 2000,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 10,
+  show_messages = FALSE,
+  show_exceptions = FALSE
+)
+
+index_mod_summary <- index_comp_model_run$summary()
+
+index_comp_model_draws <- index_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
+
+to_plot <- data.frame(model = index_model_data$x,
+                      model_RH = index_model_data$y)
+indices_comp_plot <- ggplot(data = to_plot, aes(x = model, y = model_RH)) + 
+  geom_point(alpha = 0.3) +
+  geom_abline(intercept = index_comp_model_draws$intercept, slope = index_comp_model_draws$beta, color = "grey", alpha = 0.1) +
+  geom_abline(intercept = mean(index_comp_model_draws$intercept),
+              slope = mean(index_comp_model_draws$beta),
+              color = "black", linewidth = 1) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  xlab("Index of Abundance (No Hyperparameter)") +
+  ylab("Index of Abundance (Hyperparameter)") +
+  ggtitle("Index of Abundance Comparison") +
+  NULL
+
+print(indices_comp_plot)
+message(paste0("Slope: ", round(index_mod_summary[which(index_mod_summary$variable == "beta"), "mean"], 4)  ),
+        " [", round(index_mod_summary[which(index_mod_summary$variable == "beta"), "q5"], 4), ", ",
+        round(index_mod_summary[which(index_mod_summary$variable == "beta"), "q95"], 4), "]",
+        "\t Y-intercept: ", round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "mean"], 4), 
+                " [", round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "q5"], 4), ", ",
+        round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "q95"], 4), "]")
+
+
+point_indices$indices <- point_indices$indices[which(point_indices$indices$region %in% regions_both), ]
+point_RH_indices$indices <- point_RH_indices$indices[which(point_RH_indices$indices$region %in% regions_both), ]
+
+point_trends <- generate_trends(point_indices)
+point_RH_trends <- generate_trends(point_RH_indices)
+
+n_trends <- nrow(point_trends$trends)
+# n_trends - 1 so that we don't model the continental trend, only stratum-level
+trend_model_data <- list(N = n_trends - 1,
+                         y = point_RH_trends$trends$trend[2:n_trends],
+                         x = point_trends$trends$trend[2:n_trends],
+                         beta_mean_prior = 1)
+
+trend_comp_model <- cmdstan_model(stan_file = "../models/slr-model.stan")
+
+trend_comp_model_run <- trend_comp_model$sample(
+  data = trend_model_data,
+  iter_warmup = 1000,
+  iter_sampling = 2000,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 10,
+  show_messages = FALSE,
+  show_exceptions = FALSE
+)
+
+trend_mod_summary <- trend_comp_model_run$summary()
+
+trend_comp_model_draws <- trend_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
+
+to_plot <- data.frame(model = trend_model_data$x,
+                      model_RH = trend_model_data$y)
+trend_comp_plot <- ggplot(data = to_plot, aes(x = model, y = model_RH)) + 
+  geom_point(alpha = 0.3) +
+  geom_abline(intercept = trend_comp_model_draws$intercept, slope = trend_comp_model_draws$beta, color = "grey", alpha = 0.1) +
+  geom_abline(intercept = mean(trend_comp_model_draws$intercept),
+              slope = mean(trend_comp_model_draws$beta),
+              color = "black", linewidth = 1) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  xlab("Trend (No Hyperparameter)") +
+  ylab("Trend (Hyperparameter)") +
+  ggtitle("Trend Comparisons") +
+  NULL
+  
+  print(trend_comp_plot)
+message(paste0("Slope: ", round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "mean"], 4)  ),
+        " [", round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "q5"], 4), ", ",
+        round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "q95"], 4), "]",
+        "\t Y-intercept: ", round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "mean"], 4), 
+                " [", round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "q5"], 4), ", ",
+        round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "q95"], 4), "]")
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+# DETECT Model Comparison
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r detect, echo=FALSE}
+detect_indices <- readRDS(file = paste0("../output/indices/", sp, "_detectability.RDS"))
+detect_RH_indices <- readRDS(file = paste0("../output/indices/", sp, "_detectability_RH.RDS"))
+
+regions_both <- intersect(detect_indices$indices$region, detect_RH_indices$indices$region)
+
+detect_df <- detect_indices$indices[which(detect_indices$indices$region %in% regions_both &
+                                          detect_indices$indices$region_type == "stratum"), ]
+detect_df$yr_region <- paste0(detect_df$year, "-", detect_df$region)
+
+detect_RH_df <- detect_RH_indices$indices[which(detect_RH_indices$indices$region %in% regions_both &
+                                          detect_RH_indices$indices$region_type == "stratum"), ]
+detect_RH_df$yr_region <- paste0(detect_RH_df$year, "-", detect_RH_df$region)
+
+# Make sure order of indices align
+region_order <- match(detect_df$yr_region, detect_RH_df$yr_region)
+detect_RH_df <- detect_RH_df[region_order, ]
+
+detect_df_mid <- detect_df[which(detect_df$year == mid_year), ]
+detect_df_RH_mid <- detect_RH_df[which(detect_RH_df$year == mid_year), ]
+
+index_model_data <- list(N = nrow(detect_df_mid),
+                   y = detect_df_RH_mid$index,
+                   x = detect_df_mid$index,
+                   beta_mean_prior = 1)
+
+index_comp_model <- cmdstan_model(stan_file = "../models/slr-model.stan")
+
+index_comp_model_run <- index_comp_model$sample(
+  data = index_model_data,
+  iter_warmup = 1000,
+  iter_sampling = 2000,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 10,
+  show_messages = FALSE,
+  show_exceptions = FALSE
+)
+
+index_mod_summary <- index_comp_model_run$summary()
+
+index_comp_model_draws <- index_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
+
+to_plot <- data.frame(model = index_model_data$x,
+                      model_RH = index_model_data$y)
+indices_comp_plot <- ggplot(data = to_plot, aes(x = model, y = model_RH)) + 
+  geom_point(alpha = 0.3) +
+  geom_abline(intercept = index_comp_model_draws$intercept, slope = index_comp_model_draws$beta, color = "grey", alpha = 0.1) +
+  geom_abline(intercept = mean(index_comp_model_draws$intercept),
+              slope = mean(index_comp_model_draws$beta),
+              color = "black", linewidth = 1) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  xlab("Index of Abundance (No Hyperparameter)") +
+  ylab("Index of Abundance (Hyperparameter)") +
+    ggtitle("Index of Abundance Comparison") +
+  NULL
+
+print(indices_comp_plot)
+message(paste0("Slope: ", round(index_mod_summary[which(index_mod_summary$variable == "beta"), "mean"], 4)  ),
+        " [", round(index_mod_summary[which(index_mod_summary$variable == "beta"), "q5"], 4), ", ",
+        round(index_mod_summary[which(index_mod_summary$variable == "beta"), "q95"], 4), "]",
+        "\t Y-intercept: ", round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "mean"], 4), 
+                " [", round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "q5"], 4), ", ",
+        round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "q95"], 4), "]")
+
+
+
+detect_indices$indices <- detect_indices$indices[which(detect_indices$indices$region %in% regions_both), ]
+detect_RH_indices$indices <- detect_RH_indices$indices[which(detect_RH_indices$indices$region %in% regions_both), ]
+
+detect_trends <- generate_trends(detect_indices)
+detect_RH_trends <- generate_trends(detect_RH_indices)
+
+n_trends <- nrow(detect_trends$trends)
+# n_trends - 1 so that we don't model the continental trend, only stratum-level
+trend_model_data <- list(N = n_trends - 1,
+                         y = detect_RH_trends$trends$trend[2:n_trends],
+                         x = detect_trends$trends$trend[2:n_trends],
+                         beta_mean_prior = 1)
+
+trend_comp_model <- cmdstan_model(stan_file = "../models/slr-model.stan")
+
+trend_comp_model_run <- trend_comp_model$sample(
+  data = trend_model_data,
+  iter_warmup = 1000,
+  iter_sampling = 2000,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 10,
+  show_messages = FALSE,
+  show_exceptions = FALSE
+)
+
+trend_mod_summary <- trend_comp_model_run$summary()
+
+trend_comp_model_draws <- trend_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
+
+to_plot <- data.frame(model = trend_model_data$x,
+                      model_RH = trend_model_data$y)
+trend_comp_plot <- ggplot(data = to_plot, aes(x = model, y = model_RH)) + 
+  geom_point(alpha = 0.3) +
+  geom_abline(intercept = trend_comp_model_draws$intercept, slope = trend_comp_model_draws$beta, color = "grey", alpha = 0.1) +
+  geom_abline(intercept = mean(trend_comp_model_draws$intercept),
+              slope = mean(trend_comp_model_draws$beta),
+              color = "black", linewidth = 1) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  xlab("Trend (No Hyperparameter)") +
+  ylab("Trend (Hyperparameter)") +
+  ggtitle("Trend Comparisons") +
+  NULL
+  
+  print(trend_comp_plot)
+message(paste0("Slope: ", round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "mean"], 4)  ),
+        " [", round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "q5"], 4), ", ",
+        round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "q95"], 4), "]",
+        "\t Y-intercept: ", round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "mean"], 4), 
+                " [", round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "q5"], 4), ", ",
+        round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "q95"], 4), "]")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+# VARPROP Model Comparison
+
+```{r varprop, echo=FALSE}
+varprop_indices <- readRDS(file = paste0("../output/indices/", sp, "_varprop.RDS"))
+varprop_RH_indices <- readRDS(file = paste0("../output/indices/", sp, "_varprop_RH.RDS"))
+
+regions_both <- intersect(varprop_indices$indices$region, varprop_RH_indices$indices$region)
+
+varprop_df <- varprop_indices$indices[which(varprop_indices$indices$region %in% regions_both &
+                                          varprop_indices$indices$region_type == "stratum"), ]
+varprop_df$yr_region <- paste0(varprop_df$year, "-", varprop_df$region)
+
+varprop_RH_df <- varprop_RH_indices$indices[which(varprop_RH_indices$indices$region %in% regions_both &
+                                          varprop_RH_indices$indices$region_type == "stratum"), ]
+varprop_RH_df$yr_region <- paste0(varprop_RH_df$year, "-", varprop_RH_df$region)
+
+# Make sure order of indices align
+region_order <- match(varprop_df$yr_region, varprop_RH_df$yr_region)
+varprop_RH_df <- varprop_RH_df[region_order, ]
+
+varprop_df_mid <- varprop_df[which(varprop_df$year == mid_year), ]
+varprop_df_RH_mid <- varprop_RH_df[which(varprop_RH_df$year == mid_year), ]
+
+index_model_data <- list(N = nrow(detect_df_mid),
+                   y = detect_df_RH_mid$index,
+                   x = detect_df_mid$index,
+                   beta_mean_prior = 1)
+
+index_comp_model <- cmdstan_model(stan_file = "../models/slr-model.stan")
+
+index_comp_model_run <- index_comp_model$sample(
+  data = index_model_data,
+  iter_warmup = 1000,
+  iter_sampling = 2000,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 10,
+  show_messages = FALSE,
+  show_exceptions = FALSE
+)
+
+index_mod_summary <- index_comp_model_run$summary()
+
+index_comp_model_draws <- index_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
+
+to_plot <- data.frame(model = index_model_data$x,
+                      model_RH = index_model_data$y)
+indices_comp_plot <- ggplot(data = to_plot, aes(x = model, y = model_RH)) + 
+  geom_point(alpha = 0.3) +
+  geom_abline(intercept = index_comp_model_draws$intercept, slope = index_comp_model_draws$beta, color = "grey", alpha = 0.1) +
+  geom_abline(intercept = mean(index_comp_model_draws$intercept),
+              slope = mean(index_comp_model_draws$beta),
+              color = "black", linewidth = 1) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  xlab("Index of Abundance (No Hyperparameter)") +
+  ylab("Index of Abundance (Hyperparameter)") +
+    ggtitle("Index of Abundance Comparison") +
+  NULL
+
+print(indices_comp_plot)
+message(paste0("Slope: ", round(index_mod_summary[which(index_mod_summary$variable == "beta"), "mean"], 4)  ),
+        " [", round(index_mod_summary[which(index_mod_summary$variable == "beta"), "q5"], 4), ", ",
+        round(index_mod_summary[which(index_mod_summary$variable == "beta"), "q95"], 4), "]",
+        "\t Y-intercept: ", round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "mean"], 4), 
+                " [", round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "q5"], 4), ", ",
+        round(index_mod_summary[which(index_mod_summary$variable == "intercept"), "q95"], 4), "]")
+
+
+
+varprop_indices$indices <- varprop_indices$indices[which(varprop_indices$indices$region %in% regions_both), ]
+varprop_RH_indices$indices <- varprop_RH_indices$indices[which(varprop_RH_indices$indices$region %in% regions_both), ]
+
+varprop_trends <- generate_trends(varprop_indices)
+varprop_RH_trends <- generate_trends(varprop_RH_indices)
+
+n_trends <- nrow(varprop_trends$trends)
+# n_trends - 1 so that we don't model the continental trend, only stratum-level
+trend_model_data <- list(N = n_trends - 1,
+                         y = varprop_RH_trends$trends$trend[2:n_trends],
+                         x = varprop_trends$trends$trend[2:n_trends],
+                         beta_mean_prior = 1)
+
+trend_comp_model <- cmdstan_model(stan_file = "../models/slr-model.stan")
+
+trend_comp_model_run <- trend_comp_model$sample(
+  data = trend_model_data,
+  iter_warmup = 1000,
+  iter_sampling = 2000,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 10,
+  show_messages = FALSE,
+  show_exceptions = FALSE
+)
+
+trend_mod_summary <- trend_comp_model_run$summary()
+
+trend_comp_model_draws <- trend_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
+
+to_plot <- data.frame(model = trend_model_data$x,
+                      model_RH = trend_model_data$y)
+trend_comp_plot <- ggplot(data = to_plot, aes(x = model, y = model_RH)) + 
+  geom_point(alpha = 0.3) +
+  geom_abline(intercept = trend_comp_model_draws$intercept, slope = trend_comp_model_draws$beta, color = "grey", alpha = 0.1) +
+  geom_abline(intercept = mean(trend_comp_model_draws$intercept),
+              slope = mean(trend_comp_model_draws$beta),
+              color = "black", linewidth = 1) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  xlab("Trend (No Hyperparameter)") +
+  ylab("Trend (Hyperparameter)") +
+  ggtitle("Trend Comparisons") +
+  NULL
+  
+  print(trend_comp_plot)
+message(paste0("Slope: ", round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "mean"], 4)  ),
+        " [", round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "q5"], 4), ", ",
+        round(trend_mod_summary[which(trend_mod_summary$variable == "beta"), "q95"], 4), "]",
+        "\t Y-intercept: ", round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "mean"], 4), 
+                " [", round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "q5"], 4), ", ",
+        round(trend_mod_summary[which(trend_mod_summary$variable == "intercept"), "q95"], 4), "]")
+```
+
+# Conclusion
+
+When comparing indices of abundance between models that include a route-level hyperparameter and models that do not include a route-level hyperparameter, there tended to be very close to a 1-to-1 relationship, with slopes being just slightly above 1 and y-intercepts estimated around zero. That is to say, for lower values of index of abundance, there was virtually no difference between models that included the route-level hyperparameter versus models that do not. However, at higher values of index of abundance, the models that included a route-level hyperparameter had slightly higher values than models that did not include a route-level hyperparameter. 
+
+Given these slight changes in indices, this meant that trends were also slightly affected. None of the trend comparisons followed exactly the 1-to-1 line, however all were very close, with y-intercepts being just below zero but greater than -1, and slopes generally being around 1.02.
+
+With this in mind, we do not feel there is a need to include a route-level hyperparameter in the point-level models (regardless as to whether they account for detectability), because there was no discernable overall difference between indices and trends from either model (with or without the hyperparameter). However, if a researcher felt there was important information at the route level that needed to be captured in the model, or if a researcher wanted to have route hyperparamters that varied based on auxiliary data, then they should feel comfortable including the hyperparamaters (with any additional information).
