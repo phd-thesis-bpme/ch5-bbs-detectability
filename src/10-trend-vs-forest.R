@@ -77,10 +77,11 @@ for (s in mean_fc_change_stratum$Stratum)
 mean_fc_change_stratum$Difference <- mean_fc_change_stratum$Detectability_Trend - mean_fc_change_stratum$Point_Trend
 
 model_data <- list(N = nrow(mean_fc_change_stratum),
-                   fc_change = mean_fc_change_stratum$Mean_Change,
-                   trend_change = mean_fc_change_stratum$Difference)
+                   x = mean_fc_change_stratum$Mean_Change,
+                   y = mean_fc_change_stratum$Difference,
+                   beta_mean_prior = 0)
 
-model <- cmdstan_model(stan_file = "models/fc-vs-trend.stan")
+model <- cmdstan_model(stan_file = "models/slr-model.stan")
 
 model_run <- model$sample(
   data = model_data,
@@ -95,8 +96,8 @@ mod_summary <- model_run$summary()
 
 model_draws <- model_run$draws(variables = c("intercept", "beta"), format = "df")
 
-to_plot <- data.frame(fc = model_data$fc_change,
-                      trend = model_data$trend_change)
+to_plot <- data.frame(fc = model_data$x,
+                      trend = model_data$y)
 comp_plot <- ggplot(data = to_plot, aes(x = fc, y = trend)) + 
   geom_abline(intercept = model_draws$intercept, slope = model_draws$beta, color = "grey", alpha = 0.1) +
   geom_abline(intercept = mean(model_draws$intercept),
@@ -115,9 +116,3 @@ png(filename = paste0("output/plots/trend-vs-forest.png"),
     width = 6, height = 4, res = 600, units = "in")
 print(comp_plot)
 dev.off()
-
-
-
-
-
-

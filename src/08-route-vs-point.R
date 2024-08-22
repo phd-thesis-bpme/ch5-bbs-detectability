@@ -44,12 +44,11 @@ route_df_mid <- route_df[which(route_df$year == mid_year), ]
 point_df_mid <- point_df[which(point_df$year == mid_year), ]
 
 index_model_data <- list(N = nrow(route_df_mid),
-                   n_strata = length(unique(route_df_mid$region)),
-                   route_index = route_df_mid$index ,
-                   point_index = point_df_mid$index,
-                   stratum = as.numeric(factor(route_df_mid$region)))
+                   y = route_df_mid$index,
+                   x = point_df_mid$index,
+                   beta_mean_prior = 50)
 
-index_comp_model <- cmdstan_model(stan_file = "models/route-vs-point-index.stan")
+index_comp_model <- cmdstan_model(stan_file = "models/slr-model.stan")
 
 index_comp_model_run <- index_comp_model$sample(
   data = index_model_data,
@@ -64,14 +63,15 @@ index_mod_summary <- index_comp_model_run$summary()
 
 index_comp_model_draws <- index_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
 
-to_plot <- data.frame(point = index_model_data$point_index,
-                      route = index_model_data$route_index)
+to_plot <- data.frame(point = index_model_data$x,
+                      route = index_model_data$y)
 indices_comp_plot <- ggplot(data = to_plot, aes(x = point, y = route)) + 
   geom_point(alpha = 0.3) +
   geom_abline(intercept = index_comp_model_draws$intercept, slope = index_comp_model_draws$beta, color = "grey", alpha = 0.1) +
   geom_abline(intercept = mean(index_comp_model_draws$intercept),
               slope = mean(index_comp_model_draws$beta),
               color = "black", size = 1) +
+  geom_abline(slope = 50, intercept = 0, color = "red", linetype = "dashed") +
   xlab("Index of Abundance (POINT)") +
   ylab("Index of Abundance (ROUTE)") +
   NULL
@@ -87,10 +87,11 @@ point_trends <- generate_trends(point_indices)
 n_trends <- nrow(route_trends$trends)
 # n_trends - 1 so that we don't model the continental trend, only stratum-level
 trend_model_data <- list(N = n_trends - 1,
-                         route_trend = route_trends$trends$trend[2:n_trends] ,
-                         point_trend = point_trends$trends$trend[2:n_trends])
+                         y = route_trends$trends$trend[2:n_trends],
+                         x = point_trends$trends$trend[2:n_trends],
+                         beta_mean_prior = 1)
 
-trend_comp_model <- cmdstan_model(stan_file = "models/route-vs-point-trends.stan")
+trend_comp_model <- cmdstan_model(stan_file = "models/slr-model.stan")
 
 trend_comp_model_run <- trend_comp_model$sample(
   data = trend_model_data,
@@ -103,18 +104,17 @@ trend_comp_model_run <- trend_comp_model$sample(
 
 trend_mod_summary <- trend_comp_model_run$summary()
 
-trend_slope_plot <- bayesplot::mcmc_areas(trend_comp_model_run$draws(c("intercept", "beta")), prob = 0.95)
-
 trend_comp_model_draws <- trend_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
 
-to_plot <- data.frame(point = trend_model_data$point_trend,
-                      route = trend_model_data$route_trend)
+to_plot <- data.frame(point = trend_model_data$x,
+                      route = trend_model_data$y)
 trend_comp_plot <- ggplot(data = to_plot, aes(x = point, y = route)) + 
   geom_point(alpha = 0.3) +
   geom_abline(intercept = trend_comp_model_draws$intercept, slope = trend_comp_model_draws$beta, color = "grey", alpha = 0.1) +
   geom_abline(intercept = mean(trend_comp_model_draws$intercept),
               slope = mean(trend_comp_model_draws$beta),
               color = "black", size = 1) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
   xlab("Trend (POINT)") +
   ylab("Trend (ROUTE)") +
   NULL

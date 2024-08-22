@@ -1,7 +1,9 @@
 data {
   int<lower=0> N;
-  vector [N] route_index;
-  vector [N] point_index;
+  vector [N] y;
+  vector [N] x;
+  
+  real beta_mean_prior;
 }
 
 parameters {
@@ -11,9 +13,9 @@ parameters {
 }
 
 model {
-  route_index ~ normal(intercept + beta * point_index, sigma);
+  y ~ normal(intercept + beta * x, sigma);
   intercept ~ normal(0,1);
-  beta ~ normal(50, 1);
+  beta ~ normal(beta_mean_prior, 1);
   sigma ~ exponential(1);
 
 }
