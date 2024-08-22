@@ -46,12 +46,11 @@ detect_df_mid <- detect_df[which(detect_df$year == mid_year), ]
 varprop_df_mid <- varprop_df[which(varprop_df$year == mid_year), ]
 
 model_data <- list(N = nrow(detect_df_mid),
-                   n_strata = length(unique(detect_df_mid$region)),
-                   detect_index = detect_df_mid$index ,
-                   varprop_index = varprop_df_mid$index,
-                   stratum = as.numeric(factor(detect_df_mid$region)))
+                   x = detect_df_mid$index,
+                   y = varprop_df_mid$index,
+                   beta_mean_prior = 1)
 
-model <- cmdstan_model(stan_file = "models/detect-vs-varprop.stan")
+model <- cmdstan_model(stan_file = "models/slr-model.stan")
 
 model_run <- model$sample(
   data = model_data,
@@ -64,16 +63,17 @@ model_run <- model$sample(
 
 mod_summary <- model_run$summary()
 
-model_draws <- model_run$draws(variables = c("intercept", "BETA"), format = "df")
+model_draws <- model_run$draws(variables = c("intercept", "beta"), format = "df")
 
-to_plot <- data.frame(detect = model_data$detect_index,
-                      varprop = model_data$varprop_index)
+to_plot <- data.frame(detect = model_data$x,
+                      varprop = model_data$y)
 comp_plot <- ggplot(data = to_plot, aes(x = detect, y = varprop)) + 
-  geom_abline(intercept = model_draws$intercept, slope = model_draws$BETA, color = "grey", alpha = 0.1) +
+  geom_abline(intercept = model_draws$intercept, slope = model_draws$beta, color = "grey", alpha = 0.1) +
   geom_abline(intercept = mean(model_draws$intercept),
-              slope = mean(model_draws$BETA),
+              slope = mean(model_draws$beta),
               color = "black", size = 1) +
   geom_point(alpha = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
   xlab("Index of Abundance (DETECT)") +
   ylab("Index of Abundance (VARPROP)") +
   NULL
