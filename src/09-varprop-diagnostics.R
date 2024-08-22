@@ -3,7 +3,7 @@
 # BBS Point Level
 # 09-varprop-diagnostics.R
 # Created May 2024
-# Last Updated June 2024
+# Last Updated August 2024
 
 ####### Import Libraries and External Files #######
 
@@ -16,6 +16,7 @@ bayesplot::color_scheme_set("gray")
 ####### Set Constants #############################
 
 sp <- "OVEN"
+mid_year <- 2016
 
 ####### Read Data #################################
 
@@ -41,11 +42,14 @@ varprop_df$yr_region <- paste0(varprop_df$year, "-", varprop_df$region)
 region_order <- match(detect_df$yr_region, varprop_df$yr_region)
 varprop_df <- varprop_df[region_order, ]
 
-model_data <- list(N = nrow(detect_df),
-                   n_strata = length(unique(detect_df$region)),
-                   detect_index = detect_df$index ,
-                   varprop_index = varprop_df$index,
-                   stratum = as.numeric(factor(detect_df$region)))
+detect_df_mid <- detect_df[which(detect_df$year == mid_year), ]
+varprop_df_mid <- varprop_df[which(varprop_df$year == mid_year), ]
+
+model_data <- list(N = nrow(detect_df_mid),
+                   n_strata = length(unique(detect_df_mid$region)),
+                   detect_index = detect_df_mid$index ,
+                   varprop_index = varprop_df_mid$index,
+                   stratum = as.numeric(factor(detect_df_mid$region)))
 
 model <- cmdstan_model(stan_file = "models/detect-vs-varprop.stan")
 
@@ -69,7 +73,7 @@ comp_plot <- ggplot(data = to_plot, aes(x = detect, y = varprop)) +
   geom_abline(intercept = mean(model_draws$intercept),
               slope = mean(model_draws$BETA),
               color = "black", size = 1) +
-  geom_point(alpha = 0.1) +
+  geom_point(alpha = 0.3) +
   xlab("Index of Abundance (DETECT)") +
   ylab("Index of Abundance (VARPROP)") +
   NULL

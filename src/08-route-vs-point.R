@@ -3,7 +3,7 @@
 # BBS Point Level
 # <08-route-vs-point.R>
 # Created April 2024
-# Last Updated June 2024
+# Last Updated August 2024
 
 ####### Import Libraries and External Files #######
 
@@ -17,6 +17,7 @@ bayesplot::color_scheme_set("red")
 ####### Set Constants #############################
 
 sp <- "OVEN"
+mid_year <- 2016
 
 ####### Read Data #################################
 
@@ -39,11 +40,14 @@ point_df$yr_region <- paste0(point_df$year, "-", point_df$region)
 region_order <- match(route_df$yr_region, point_df$yr_region)
 point_df <- point_df[region_order, ]
 
-index_model_data <- list(N = nrow(route_df),
-                   n_strata = length(unique(route_df$region)),
-                   route_index = route_df$index ,
-                   point_index = point_df$index,
-                   stratum = as.numeric(factor(route_df$region)))
+route_df_mid <- route_df[which(route_df$year == mid_year), ]
+point_df_mid <- point_df[which(point_df$year == mid_year), ]
+
+index_model_data <- list(N = nrow(route_df_mid),
+                   n_strata = length(unique(route_df_mid$region)),
+                   route_index = route_df_mid$index ,
+                   point_index = point_df_mid$index,
+                   stratum = as.numeric(factor(route_df_mid$region)))
 
 index_comp_model <- cmdstan_model(stan_file = "models/route-vs-point-index.stan")
 
@@ -58,17 +62,15 @@ index_comp_model_run <- index_comp_model$sample(
 
 index_mod_summary <- index_comp_model_run$summary()
 
-indices_slope_plot <- bayesplot::mcmc_areas(index_comp_model_run$draws("BETA"), prob = 0.95)
-
-index_comp_model_draws <- index_comp_model_run$draws(variables = c("intercept", "BETA"), format = "df")
+index_comp_model_draws <- index_comp_model_run$draws(variables = c("intercept", "beta"), format = "df")
 
 to_plot <- data.frame(point = index_model_data$point_index,
                       route = index_model_data$route_index)
 indices_comp_plot <- ggplot(data = to_plot, aes(x = point, y = route)) + 
-  geom_point(alpha = 0.05) +
-  geom_abline(intercept = index_comp_model_draws$intercept, slope = index_comp_model_draws$BETA, color = "grey", alpha = 0.1) +
+  geom_point(alpha = 0.3) +
+  geom_abline(intercept = index_comp_model_draws$intercept, slope = index_comp_model_draws$beta, color = "grey", alpha = 0.1) +
   geom_abline(intercept = mean(index_comp_model_draws$intercept),
-              slope = mean(index_comp_model_draws$BETA),
+              slope = mean(index_comp_model_draws$beta),
               color = "black", size = 1) +
   xlab("Index of Abundance (POINT)") +
   ylab("Index of Abundance (ROUTE)") +
