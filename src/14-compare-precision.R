@@ -37,6 +37,20 @@ point_trends$ci_width <- point_trends$trend_q_0.95 - point_trends$trend_q_0.05
 detect_trends$ci_width <- detect_trends$trend_q_0.95 - detect_trends$trend_q_0.05
 varprop_trends$ci_width <- varprop_trends$trend_q_0.95 - varprop_trends$trend_q_0.05
 
+ci_width_df <- data.frame(Model = c(rep("ROUTE", times = nrow(route_trends)),
+                                    rep("POINT", times = nrow(point_trends)),
+                                    rep("DETECT", times = nrow(detect_trends)),
+                                    rep("VARPROP", times = nrow(varprop_trends))),
+                          CI_Width = c(as.vector(route_trends$ci_width),
+                                       as.vector(point_trends$ci_width),
+                                       as.vector(detect_trends$ci_width),
+                                       as.vector(varprop_trends$ci_width)))
+ci_width_df$Model <- factor(ci_width_df$Model,
+                               levels = c("ROUTE", "POINT", "DETECT", "VARPROP"))
+
+ci_width_boxplot <- ggplot(data = ci_width_df) +
+  geom_boxplot(aes(x = Model, y = CI_Width, group = Model))
+
 route_summary <- as.vector(unname(summary(route_trends$ci_width))) 
 point_summary <- as.vector(unname(summary(point_trends$ci_width)))
 detect_summary <- as.vector(unname(summary(detect_trends$ci_width)))
