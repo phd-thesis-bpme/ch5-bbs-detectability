@@ -49,7 +49,10 @@ ci_width_df$Model <- factor(ci_width_df$Model,
                                levels = c("ROUTE", "POINT", "DETECT", "VARPROP"))
 
 ci_width_boxplot <- ggplot(data = ci_width_df) +
-  geom_boxplot(aes(x = Model, y = CI_Width, group = Model))
+  geom_boxplot(aes(x = Model, y = CI_Width, group = Model)) +
+  ylab("90% CI Width (Trend)") +
+  ylim(0, max(ci_width_df$CI_Width + 10)) +
+  NULL
 
 route_summary <- as.vector(unname(summary(route_trends$ci_width))) 
 point_summary <- as.vector(unname(summary(point_trends$ci_width)))
@@ -64,3 +67,8 @@ names(summary_table) <- c("model", "min", "q1", "median", "mean", "q3", "max")
 ####### Output ####################################
 
 write.table(file = "output/precision_summary.csv", x = summary_table, sep = ",", row.names = FALSE)
+
+png(filename = "output/plots/precision_comparison.png",
+    width = 5, height = 3, res = 300, units = "in")
+print(ci_width_boxplot)
+dev.off()

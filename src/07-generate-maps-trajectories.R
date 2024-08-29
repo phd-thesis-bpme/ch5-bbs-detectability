@@ -3,7 +3,7 @@
 # BBS Point Level
 # <07-generate-maps-trajectories.R>
 # Created April 2024
-# Last Updated June 2024
+# Last Updated August 2024
 
 ####### Import Libraries and External Files #######
 
@@ -49,20 +49,26 @@ sp <- sp_list
   ####### Output ####################################
   
   png(filename = paste0("output/plots/", sp, "-map.png"),
-      width = 20, height = 6, units = "in", res = 300)
-  ggarrange(trend_map_route, trend_map_point, trend_map_varprop, nrow = 1,
-            labels = c("Route", "Point", "Detectability", "Varprop"))
+      width = 5, height = 5, units = "in", res = 300)
+  ggarrange(trend_map_route, trend_map_point, 
+            trend_map_detectability, trend_map_varprop, nrow = 2, ncol = 2,
+            common.legend = TRUE,
+            legend = "left",
+            labels = c("A", "B", "C", "D"))
   dev.off()
   
   png(filename = paste0("output/plots/", sp, "-trajectory.png"),
-      width = 20, height = 6, units = "in", res = 300)
-  ggarrange(indices_plot_route$continent, indices_plot_point$continent, indices_plot_varprop$continent,
-            nrow = 1,
-            labels = c("Route", "Point", "Detectability", "Varprop"))
+      width = 5.5, height = 5.5, units = "in", res = 300)
+  ggarrange(indices_plot_route$continent + theme(axis.text.x = element_text(angle = 90)),
+            indices_plot_point$continent + theme(axis.text.x = element_text(angle = 90)), 
+            indices_plot_detectability$continent + theme(axis.text.x = element_text(angle = 90)), 
+            indices_plot_varprop$continent + theme(axis.text.x = element_text(angle = 90)),
+            nrow = 2, ncol = 2,
+            labels = c("A", "B", "C", "D"))
   dev.off()  
   
   png(filename = paste0("output/plots/", sp, "-combined.png"),
-      width = 6, height = 8, units = "in", res = 300)
+      width = 5, height = 8, units = "in", res = 300)
   ggarrange(  ggarrange(trend_map_route, trend_map_point, trend_map_varprop, ncol = 1,
                         common.legend = TRUE),
               ggarrange(indices_plot_route$continent, indices_plot_point$continent, indices_plot_varprop$continent,
