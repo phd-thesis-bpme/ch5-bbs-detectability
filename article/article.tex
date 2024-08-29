@@ -15,6 +15,13 @@
 \usepackage{lineno}
 \linenumbers
 
+\renewcommand{\topfraction}{.85}
+\renewcommand{\bottomfraction}{.7}
+\renewcommand{\textfraction}{.15}
+\renewcommand{\floatpagefraction}{.66}
+\renewcommand{\dbltopfraction}{.66}
+\renewcommand{\dblfloatpagefraction}{.66}
+
 %opening
 \title{A point-level trend model for the North American Breeding Bird Survey that corrects for detectability}
 \author{
@@ -341,32 +348,87 @@ All models were run on one of two multi-core processing servers, one running Ubu
 
 \section{Results}
 
-\par Using the ROUTE, POINT, and VARPROP model output, we generated trends and trajectories for Ovenbird in Canada from 2010 - 2022 (Figure \ref{fig:oven-combined}).
-The calculated trends among the three models were similar to each other: trend from the ROUTE model was an increase of $0.65\%$ with a 90\% credible interval of $[0.11, 1.24]$; trend from the POINT model was an increase of $1.48\%$ with a 90\% credible interval of $[0.57, 1.73]$; and trend from the VARPROP model was an increase of $0.82\%$ with a 90\% credible interval of $[0.26, 1.39]$.
-We note that the y-axis of the three time series in Figure \ref{fig:oven-combined} are rather different from each other: the y-axis for the ROUTE time series is the expected number of observed Ovenbirds on an average route; the y-axis for the POINT time series is the expected number of observed Ovenbirds on an average point; the y-axis for the VARPROP time series is the expected number of observed Ovenbirds on an average 400 m radius point, given perfect detectability.
+\par Using the ROUTE, POINT, DETECT, and VARPROP model output, we generated trends (Figure \ref{fig:oven-map}) and trajectories (Figure \ref{fig:oven-trajectories}) for Ovenbird in Canada from 2010 - 2022.
+The overall trends among the four models were similar to each other: trend from the ROUTE model was an increase of $0.65\%$ with a 90\% credible interval of $[0.11\%, 1.24\%]$; trend from the POINT model was an increase of $1.14\%$ with a 90\% credible interval of $[0.57\%, 1.73\%]$; trends from the DETECT model was an increase of $0.88\%$ with a 90\% credible interval of $[0.28\%, 1.51\%]$; and trend from the VARPROP model was an increase of $0.82\%$ with a 90\% credible interval of $[0.26\%, 1.39\%]$.
+We note that the y-axis of the four time series in Figure \ref{fig:oven-trajectories} are rather different from each other: the y-axis for the ROUTE time series is the expected number of observed Ovenbirds on an average route; the y-axis for the POINT time series is the expected number of observed Ovenbirds on an average point; and the y-axis for the DETECT and VARPROP time series is the expected number of observed Ovenbirds on an average 400 m radius point, given perfect detectability.
+
+\begin{figure}[h]
+	\includegraphics{../output/plots/OVEN-map.png}
+	\caption{Canada-wide trends for Ovenbird as derived from the status-quo route model in Equation \ref{bbs} and \citet{smith_spatially_2023} (A), the point-level model as in Equation \ref{bbs-point} (B), the point-level model that includes detectability as in Equation \ref{bbs-detect} (C), and the point-level model that includes detectability and variance propagation as in Equation \ref{bbs_varprop} (D).}
+	\label{fig:oven-map}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics{../output/plots/OVEN-trajectory.png}
+	\caption{Canada-wide trajectories for Ovenbird as derived from the status-quo route model in Equation \ref{bbs} and \citet{smith_spatially_2023} (A), the point-level model as in Equation \ref{bbs-point} (B), the point-level model that includes detectability as in Equation \ref{bbs-detect} (C), and the point-level model that includes detectability and variance propagation as in Equation \ref{bbs_varprop} (D). Be aware of the differences in the y-axes for each of these models: the ROUTE y-axis is the annual index of abundance per route, the POINT y-axis is the annual index of abundance per point, and the DETECT and VARPROP y-axis is the expected annual index of abundance per point given perfect detectability.}
+	\label{fig:oven-trajectories}
+\end{figure}
 
 \par For Ovenbird, the POINT model appeared to be a reasonable proxy for the standard ROUTE model.
-On average, indices of abundance from a ROUTE model were approximately 52.3 times the indices from the POINT model, with a 90\% credible interval of $[51.9, 52.7]$ (Figure \ref{fig:route-vs-point}A).
+On average, midyear indices of abundance from the ROUTE model were approximately 51.2 times the midyear indices from the POINT model, with a 90\% credible interval of $[50.2, 52.3]$ (Figure \ref{fig:route-vs-point}A).
 This was slightly greater than our hypothesized value of 50, but note that this could be due to some routes having fewer than 50 points.
-Mean values of this slope for individual strata ranged from 44.9 to 64.9.
-Trends from each stratum tended to closely match between the ROUTE and POINT model, with an estimated slope of 0.96, with a 90\% credible interval of $[0.93, 0.99]$ (Figure \ref{fig:route-vs-point}B).
+The y-intercept of this relationship was 0.32, with a 90\% credible interval of $[-0.11, 0.76]$, indicating little evidence for a positive or negative bias.
+Trends from each stratum tended to closely match between the ROUTE and POINT model, with an estimated slope of 0.96 and a 90\% credible interval of $[0.93, 0.99]$ (Figure \ref{fig:route-vs-point}B).
 This was slightly less than our hypothesized value of 1, indicating that there is not quite a 1-to-1 relationship (but close).
+The y-intercept of this relationship was -0.47, with a 90\% credible interval of $[-0.57, -0.38]$.
+Combined with the slope $< 1$, this indicates a slight downward bias of trends in the POINT model compared to the ROUTE model.
+
+\begin{figure}[h]
+	\includegraphics{../output/plots/route-vs-point.png}
+	\caption{Index of abundance (A) and trend (B) derived from POINT model versus ROUTE model. Each point in A represents an index of abundance for a stratum x year combination, whereas each point in B represents a trend estimate for a stratum. Regression lines (black) and posterior draws (grey) indicate modelled relationship.}
+	\label{fig:route-vs-point}
+\end{figure}
+
+\par We did not find large differences in precision among the four models' trend estimates (Figure \ref{fig:precision}).
+Median 90\% credible interval width for ROUTE strata trends was 8.24, which was only slightly higher than the median 90\% credible intervals of 7.89, 7.94, and 7.90 from the POINT, DETECT, and VARPROP models, respectively. 
+
+
+\begin{figure}[h]
+	\includegraphics{../output/plots/precision_comparison.png}
+	\caption{TO DO}
+	\label{fig:precision}
+\end{figure}
 
 \subsection{Variance Propagation Diagnostics}
 
-\par When comparing indices between DETECT and VARPROP models, we found an overall 1-to-1 correspondence, with an overall modelled slope value of $1.00$ and 90\% credible interval of $[0.88, 1.12]$ (Figure \ref{fig:varprop-diagnostics}A).
-This indicated that overall, there was not a large difference in indices obtained from VARPROP model compared to the DETECT model, although these slopes did vary among strata from anywhere between $0.57$ to $1.24$.
+\par When comparing midyear indices between DETECT and VARPROP models, we found a near 1-to-1 correspondence, with an overall modelled slope value of $1.01$ and 90\% credible interval of $[1.00, 1.02]$ (Figure \ref{fig:varprop-diagnostics}A).
+The y-intercept for this relationship was estimated at 0.23, with a 90\% credible interval of $[0.11, 0.35]$, indicating a slight upward bias in the VARPROP indices compared to DETECT indices.
 
 \par Removal model variance propagation parameters (i.e., $\zeta$ in Equation \ref{bbs_varprop}) were all effectively zero (Figure \ref{fig:varprop-diagnostics}B), but with varying degrees of uncertainty.
 On the other hand, distance model variance propagation parameters (i.e., $\xi$ in Equation \ref{bbs_varprop}) were nonzero for terms that included information about forest coverage, close to zero for the road parameter term, and effectively zero for the intercept term (Figure \ref{fig:varprop-diagnostics}C).
 
+\begin{figure}[h]
+	\includegraphics{../output/plots/varprop-diagnostics.png}
+	\caption{Diagnostics of variance propagation as suggested by \citet{bravington_variance_2021}. A) Index of abundance as derived from the DETECT model versus index of abundance as derived from the VARPROP model, for each stratum x year combination (points). Regression line (black) and posterior draws (grey) indicate modelled relationship. B) Variance propagation parameter posterior distributions for availability. Because we are using the ``best" NA-POPS removal model for Ovenbird, we only have parameter distributions for the Intercept, Ordinal Day, and Ordinal Day squared terms. C) Variance propagation parameter posterior distributions for perceptibility. Similar to B), because we are using the ``best" NA-POPS distance model for Ovenbird, we include distributions for the Intercept, Forest, Road, and interaction terms.}
+	\label{fig:varprop-diagnostics}
+\end{figure}
+
 \subsection{Effects of Changing Detectability on Trend}
-\par We found a positive relationship (slope = $10.0$ with 90\% credible interval of $[8.75, 11.3]$) between change in forest coverage and the difference between the VARPROP and POINT trend.
+\par We found a positive relationship (slope = $9.41$ with 90\% credible interval of $[8.02, 10.7]$) between change in forest coverage and the difference between the VARPROP and POINT trend (Figure \ref{fig:trend-vs-forest}).
 Put differently, strata with an average decrease in forest coverage are associated with a negative difference in trend, meaning that for strata with a decrease in forest coverage, the VARPROP model will show a more negative trend than the point model.
 As such, strata with an average increase in forest coverage are associated with positive difference in trend, meaning that for strata with an increase in forest coverage, the VARPROP model will show a more positive trend than the point model.
 
+\begin{figure}[h]
+	\includegraphics{../output/plots/trend-vs-forest.png}
+	\caption{Change in forest coverage versus difference in trend between the VARPROP and POINT models. Change in forest coverage was calculated as the difference between forest coverage in 2022 and 2010. Trend difference was calculated as the VARPROP trend minus the POINT trend. Regression line (black) and posterior draws (grey) indicate the modelled relationship.}
+	\label{fig:trend-vs-forest}
+\end{figure}
+
 \par This relationship can be seen by focusing in on a route that has experienced a particularly large amount of forest coverage loss over the last decade, such as the one seen in Figure \ref{fig:route-change}A. 
 If detectability is not accounted for, such as with the POINT model, we estimate a trend of $-1.50$ (Figure \ref{fig:route-change}B), whereas if detectability is accounted for (due to changes in forest coverage), we estimate a much more negative trend of $-7.92$ (Figure \ref{fig:route-change}C).
+More generally, we see differences in trends on a larger scale, particularly associated with trends in the heavily-forested Boreal areas of Canada.
+
+\begin{figure}[h]
+	\includegraphics{../output/plots/route-level-change.png}
+	\caption{A) Map of forest coverage change from 2010 - 2022 at all Breeding Bird Survey points in Canada for Ovenbird. Inset is a particular route of interest in Ontario that has experienced significant forest coverage loss from 2010 - 2022. For this route, we compared the population trajectories of Ovenbird using the POINT model (B) to the population trajectories of Ovenbird using the VARPROP model (C) to assess differences in trend.}
+	\label{fig:route-change}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics{../output/plots/OVENpoint-vs-detectability-map.png}
+	\caption{TO DO}
+	\label{fig:route-change}
+\end{figure}
 
 \section{Discussion}
 
@@ -374,7 +436,10 @@ If detectability is not accounted for, such as with the POINT model, we estimate
 We then expanded upon this point-level trend model by introducing a detectability term that allows for detection probability to explicitly be accounted for in BBS trend estimation.
 Because the detection probabilities are estimated based on data in a previous model \citep{edwards_point_2023}, we used a variance propagation technique put forth by \citet{bravington_variance_2021} to explicitly incorporate the detection probability error into the trend model.
 Finally, we applied these models in a case study by examining Ovenbird trends in Canada from 2010 - 2022, and assessed how these trends differ by accounting for detectability given changes in landcover over time.
-Here, we will mostly discuss the results of the Ovenbird case study and implications of the differences in trends between each of the models.
+Overall, Canada-wide trends of Ovenbird were similar among models.
+However, point-based models incorporating detectability offsets revealed local biases that can help guide conservation management of this species.
+
+\par The following will mostly discuss the results of the Ovenbird case study and implications of the differences in trends between each of the models.
 However, we will suggest future avenues and applications of this extended BBS model, including implications for data integration.
 
 \subsection{Point-level Model as a Reasonable Proxy for Route-level Model}
@@ -395,17 +460,17 @@ We felt as though the point level model served as a good proxy in the case of th
 The model in Equation \ref{bbs-detect} only accounts for detectability and treats each estimate of detectability as a fixed, true point, whereas Equation \ref{bbs_varprop} incorporates information about the uncertainty around the estimated detection probabilities for each point.
 We were most interested in the model that incorporates detectability as well as uncertainty, but we retained output from the detectability-only model as a basis for the variance propagation diagnostics \citep{bravington_variance_2021}.
 
-\par At the country-level, overall trend and trajectory of Ovenbird did not drastically change, but there was a slight decrease in the magnitude of the trend from the POINT model to the VARPROP model.
+\par At the country-level, the overall trend of Ovenbird population estimates did not drastically change, but there was a slight decrease in the magnitude of the trend from the POINT model to the VARPROP model.
 That is, the VARPROP model estimated a trend of 0.82, with a 90\% credible interval of [0.26, 1.39], whereas the POINT model estimated a trend of 1.15, with a 90\% credible interval of [0.57, 1.73].
-The small change in the trend is not particularly unsurprising given that mean forest coverage change for each point was $-4.78 \times 10^{-3}$: on average, across the sampled Ovenbird points in Canada, forest coverage is not changing significantly.
-Thus, the effects of changes in landcover on the effects of detectability, combined with the fact that all of the sampled points are roadside surveys, effectively averages out to no change in trend on this broad scale.
+The small difference in the overall trends reflects the fact that forest cover has changed little on average across all of the points included here (mean forest coverage change for each point was $-4.78 \times 10^{-3}$).
+Thus, the effects of changes in landcover on the effects of detectability effectively averages out to no change in trend on this broad scale.
+Estimates of fine-scale trends in each stratum may be biased by these changes in detectability, but the biases are both positive and negative and on average mostly cancel each other out at a broad scale. 
 
-\par Where detectability information appeared to make the most difference in trend estimates was at the finer spatial scale.
-Here, we provided an example of a route-level change in trends when adding on detectability information, in that a particular route that had a high level of forest coverage loss (indeed, the most in our analysis) showed a high difference in trends when considering detectability.
+\par Detectability information made the most difference in trend estimates at the finer spatial scale.
+In our example above, a particular route that had a high level of forest coverage loss (indeed, the most in our analysis) showed a high difference in trends when considering detectability.
 In sampling areas with a large loss in forest coverage over time, it would be expected that population loss of forest-dwelling species (such as Ovenbird) would occur with the loss of habitat.
-However, when the sampling point was highly forested, say, at the beginning of the time series, the higher number of Ovenbirds may not be as detectable due to the higher forest coverage (and hence lower detectability).
-Then, later in the time series, when the sampling point has become more open (but still has some habitat intact), the lower number of Ovenbirds will be more detectable.
-An observer may thus detect similar number of Ovenbirds in the open environment than the closed environment, but the number of Ovenbirds detected in the open environment will likely be closer to the true number because they are more highly detectable.
+However, when the sampling point was highly forested, at the beginning of the time series, the higher number of Ovenbirds may not be as detectable due to the higher forest coverage.
+Then, later in the time series, when the sampling point has become more open (but still has some habitat intact), Ovenbirds will be more detectable.
 Therefore, by applying detectability information to this seemingly flat trend, the number of unobserved Ovenbirds in the closed environment is accounted for, creating the more negative trend.
 
 \subsection{Assessment of Variance Propagation Diagnostics}
@@ -478,38 +543,5 @@ Only then can we truly have a mechanistic and holistic understanding of the inte
 
 
 	\bibliography{refs}
-
-
-\section{Figures}
-
-\begin{figure}[h]
-	\includegraphics{../output/plots/OVEN-combined.png}
-	\caption{Canada-wide trends and trajectories for Ovenbird as derived from the status-quo route model in Equation \ref{bbs} and \citet{smith_spatially_2023} (top row), the point-level model as in Equation \ref{bbs-point} (middle row), and the point-level model that includes detectability and variance propagation as in Equation \ref{bbs_varprop} (bottom row). Note we have not included the DETECT model from Equation \ref{bbs-detect} as it was used mainly for comparison to the VARPROP model. Be aware of the differences in the y-axes for each of these models: the ROUTE y-axis is the annual index of abundance per route, the POINT y-axis is the annual index of abundance per point, and the VARPROP y-axis is the expended annual index of abundance per point given perfect detectability.}
-	\label{fig:oven-combined}
-\end{figure}
-
-\begin{figure}[h]
-	\includegraphics{../output/plots/route-vs-point.png}
-	\caption{Index of abundance (A) and trend (B) derived from POINT model versus ROUTE model. Each point in A represents an index of abundance for a stratum x year combination, whereas each point in B represents a trend estimate for a stratum. Regression lines (black) and posterior draws (grey) indicate modelled relationship.}
-	\label{fig:route-vs-point}
-\end{figure}
-
-\begin{figure}[h]
-	\includegraphics{../output/plots/varprop-diagnostics.png}
-	\caption{Diagnostics of variance propagation as suggested by \citet{bravington_variance_2021}. A) Index of abundance as derived from the DETECT model versus index of abundance as derived from the VARPROP model, for each stratum x year combination (points). Regression line (black) and posterior draws (grey) indicate modelled relationship. B) Variance propagation parameter posterior distributions for availability. Because we are using the ``best" NA-POPS removal model for Ovenbird, we only have parameter distributions for the Intercept, Ordinal Day, and Ordinal Day squared terms. C) Variance propagation parameter posterior distributions for perceptibility. Similar to B), because we are using the ``best" NA-POPS distance model for Ovenbird, we include distributions for the Intercept, Forest, Road, and interaction terms.}
-	\label{fig:varprop-diagnostics}
-\end{figure}
-
-\begin{figure}[h]
-	\includegraphics{../output/plots/trend-vs-forest.png}
-	\caption{Change in forest coverage versus difference in trend between the VARPROP and POINT models. Change in forest coverage was calculated as the difference between forest coverage in 2022 and 2010. Trend difference was calculated as the VARPROP trend minus the POINT trend. Regression line (black) and posterior draws (grey) indicate the modelled relationship.}
-	\label{fig:trend-vs-forest}
-\end{figure}
-
-\begin{figure}[h]
-	\includegraphics{../output/plots/route-level-change.png}
-	\caption{A) Map of forest coverage change from 2010 - 2022 at all Breeding Bird Survey points in Canada for Ovenbird. Inset is a particular route of interest in Ontario that has experienced significant forest coverage loss from 2010 - 2022. For this route, we compared the population trajectories of Ovenbird using the POINT model (B) to the population trajectories of Ovenbird using the VARPROP model (C) to assess differences in trend.}
-	\label{fig:route-change}
-\end{figure}
 
 \end{document}
