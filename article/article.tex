@@ -13,6 +13,7 @@
 \usepackage{graphicx}
 
 \usepackage{array}
+\usepackage{longtable}
 
 \usepackage{lineno}
 \linenumbers
@@ -98,11 +99,19 @@ Table \ref{table:params} provides a reference guide to all the parameters used i
 		$Y_{j,i,t,o}$&Total observed birds at point $j$, stratum $i$, year $t$, by observer $o$&Equation \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
 		$\alpha_i$&Stratum-level intercept, modelled with an intrinsic conditional autoregressive model \citep{besag_bayesian_1991, smith_spatially_2023}&Equation \ref{bbs}, \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
 		$\delta_{i,t}$&Smoothed temporal component estimating population trajectory through time. Modelled with generalized additive model \citep{smith_north_2021}&Equation \ref{bbs}, \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
-		$\gamma_{i,t}$&Annual year-effect fluctuation term; departure from smoothed GAM \citep{smith_north_2021}&Equation \ref{bbs}, \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
+		$\gamma_{i,t}$&Annual year-effect fluctuation term; departure from smoothed GAM&Equation \ref{bbs}, \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
 		$\psi_J$&Route-level intercept&Equation \ref{bbs}\\
 		$\psi_j$&Point-level intercept&Equation \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
 		$\omega_o$&Observer-level intercept&Equation \ref{bbs}, \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
-		$\eta$&Smoothed temporal component estimating population trajectory through time. Modelled with generalized additive model \citep{smith_north_2021}&Equation \ref{bbs}, \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
+		$\eta$&First-year observer effect&Equation \ref{bbs}, \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
+		$I(o,J,t)$&1 if observer is surveying route $J$ in year $t$ for the first time, 0 otherwise&Equation \ref{bbs}\\
+		$I(o,j,t)$&1 if observer is surveying point $j$ in year $t$ for the first time, 0 otherwise&Equation \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
+		$p_{j,i,t}$&Probability of availability at point $j$ in stratum $i$ in year $t$&Equation \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
+		$q_{j,i,t}$&Probability of perceptibility at point $j$ in stratum $i$ in year $t$&Equation \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
+		$\kappa_{j,i,t}^{(p)}$&Design matrix for availability variance propagation; first derivatives of probability of availability \citep{bravington_variance_2021}&Equation \ref{bbs_varprop}\\
+		$\kappa_{j,i,t}^{(q)}$&Design matrix for perceptibility variance propagation; first derivatives of probability of perceptibility \citep{bravington_variance_2021}&Equation \ref{bbs_varprop}\\
+		$\zeta$&Effects vector for availability variance propagation \citep{bravington_variance_2021}&Equation \ref{bbs_varprop}\\
+		$\xi$&Effects vector for perceptibility variance propagation \citep{bravington_variance_2021}&Equation \ref{bbs_varprop}\\
 		\hline
 	\end{tabular}
 \end{table}%
@@ -222,7 +231,7 @@ As in \citet{bravington_variance_2021}, we will define $\zeta = \hat{\theta} - \
 
 $$\log(p) = \log p(\hat{\theta}) + \zeta\kappa^{(p)}$$
 We can now see that we have introduced the estimated availability (i.e., $\log p(\hat{\theta})$) and as a result of the Taylor expansion we have introduced the variance propagation term $\zeta\kappa^{(p)}$.
-It follows that if we now perform the same expansions to $\log(q)$, we would get that $\log(q) = \log q(\hat{\theta}) + \xi\kappa^{(q)} + O(\hat{\theta} - \theta_0)^2$ with $\xi$ and $\kappa^{(q)}$ similarly defined.
+It follows that if we now perform the same expansions to $\log(q)$, we would get that $\log(q) = \log q(\hat{\theta}) + \xi\kappa^{(q)}$ with $\xi$ and $\kappa^{(q)}$ similarly defined.
 
 \par The parameters $\zeta$ and $\xi$ are basis coefficients for the variance propagation for $\hat{p}$ and $\hat{q}$, respectively, and play a similar role to that played by the basis coefficients in the GAM model \citep{bravington_variance_2021}. 
 In a Bayesian context, we have that $\zeta \sim N(\boldsymbol{0}, \boldsymbol{V_p})$, where $V_p$ is the covariance matrix for $\hat{p}$, and $\xi \sim N(\boldsymbol{V_q})$, where $V_q$ is the covariance matrix for $\hat{q}$.
