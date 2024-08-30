@@ -55,12 +55,12 @@ These trends have also been used to estimate the overall loss of close to three 
 In Canada, trends from the BBS inform the listing and delisting process of species at risk through the Committee on the Status of Endangered Wildlife in Canada.
 As such, it is crucial to have precise and accurate trend estimates through time to properly assess how bird populations are doing in time and in space.
 
-\par All biological data, including long-term biological data, have challenges. 
+\par All biological data, including long-term biological data, have challenges.
 One of the principal challenges in any biological data collection is detectability \citep{bennett_how_2024}.
 In the BBS, unmodeled or uncontrolled changing of detectability of birds through time can bias estimates of trends from BBS models.
 The BBS field methods currently control for many factors that are known to affect detectability, such as observer effects \citet{sauer_observer_1994}.
-Some sources of potential changing detectability can be modeled using route-level summaries, including changes in traffic during surveys \citep{griffith_traffic_2010} and changes in phenology (CITE ENGLISH).
-However many of the factors affecting detectability may vary among the points within a given route.
+Some sources of potential changing detectability can be modeled using route-level summaries \cite{smith_patterns_2023}, including changes in traffic during surveys \citep{griffith_traffic_2010} and changes in phenology \citep{english_current_2021}.
+However, many of the factors affecting detectability may vary among the points within a given route.
 For example, changes in forest cover through time at a specific point within a route will result in changes in detectability at that point.
 If forest coverage increases, then detectability for many bird species will generally decrease, and vice versa if forest coverage decreases \citep{edwards_point_2023, yip_sound_2017}.
 
@@ -77,15 +77,15 @@ Finally, we investigate how incorporating detectability as offsets affects the t
 
 \section{Model Descriptions}
 
-\par The following subsections describe how the current route-level description of the model can be converted to a point-level model, by taking advantage of the point-level data provided by the United States Geological Survey and Canadian Wildlife Service that has been available since 1997. 
+\par The following subsections describe how the current route-level description of the BBS status and trend model can be converted to a point-level model, by taking advantage of the point-level data provided by the United States Geological Survey and Canadian Wildlife Service that has been available since 1997. 
 We first describe the current status and trend model used by the Canadian Wildlife Service, as well as relevant Bayesian priors and assumptions with that model.
 We then describe how to use the point-level data in this status and trend model, as well as describe additional choices a researcher could make regarding route-level hyperparameters.
 Then, we expand this point-level model to explicitly include detectability estimates, as well as uncertainty around those estimates using variance propagation techniques described by \citep{bravington_variance_2021}.
-Table \ref{table:params} provides a reference guide to all the parameters used in these models.
+Table \ref{params_table} provides a reference guide to all the parameters used in these models.
 
-\begin{table}[ht]\label{table:params}
-	\centering
-	\caption{Parameters in the BBS models.}
+\begin{table}[!ht]
+	\caption{Parameters in the BBS models. Equation \ref{bbs} refers to the route-level model; Equation \ref{bbs-point} refers to the point-level model; Equation \ref{bbs-detect} refers to the point-level model with detectability offsets; and Equation \ref{bbs_varprop} refers to the point-level model with detectability and variance propagation.}
+	\label{params_table}
 		\begin{tabular}[t]{l>{\raggedright}p{0.5\linewidth}>{\raggedright\arraybackslash}p{0.3\linewidth}}
 		\hline
 		Parameter or Datum&Description&Model\\
@@ -116,7 +116,7 @@ Table \ref{table:params} provides a reference guide to all the parameters used i
 	\end{tabular}
 \end{table}%
 
-\subsection{Current BBS Protocol and Analysis}
+\subsection{Current BBS Protocol and Analysis}\label{current-bbs}
 
 \par Data for the North American Breeding Bird Survey (BBS) have been collected since the 1960s \citep{hudson_role_2017, sauer_first_2017}, and the protocol has remained essentially the same since. 
 Each year, observers survey their BBS ``route", which consists of 50, 3-minute point counts spaced roughly 800 m apart from each other. 
@@ -156,7 +156,7 @@ These indices are then used to calculate trend $T$ from year $t_a$ to year $t_b$
 \end{equation*}
 where $N_t$ is the index of abundance in given year and stratum.
 
-\subsection{Using Point-level Data in the BBS Status and Trend Models}
+\subsection{Using Point-level Data in the BBS Status and Trend Models}\label{point-description}
 
 \par Recall that the model described in Equation \ref{bbs} sums all points within a route $J$ and models these summed counts for each route $J$, such that the term $\psi_J$ is the route-level random effect and $\log(\lambda_{j,i,t,o})$ represents the mean expected count at route $J$ in stratum $i$ during year $t$ by observer $o$.
 Rather than modelling at the route-level $J$, we can, if we treat each point along a route as a random sample, consider each individual point or ``stop" within a route as a count.
@@ -183,7 +183,7 @@ We tested the sensitivity of this point-level model, as well as the detectabilit
 We ultimately decided that, at least for Ovenbird, there was no real benefit (or difference) in using the route-level hyperparameter, and so we did not include it here.
 This comparison and analysis can be found in Appendix A.
 
-\subsection{A Point-level Model that Explicitly Includes Detectability}
+\subsection{A Point-level Model that Explicitly Includes Detectability}\label{detect-text}
 
 \par Equation \ref{bbs-point} gives us the ability to model specifically at the point-count level, which provides us the opportunity to incorporate point-specific effects such as detectability.
 Changes in detectability will affect how many individuals are counted during a given point count, relative to the total number of individuals of the species present at the site.
@@ -368,7 +368,7 @@ Then, we compared trends and trajectories from the POINT model to those from the
 
 \begin{figure}[h]
 	\includegraphics{abundance-detectability_scaled.png}
-	\caption{TO DO}
+	\caption{Toy example of how changing forest coverage can affect both true abundance and observed abundance of a particular forest species. In Year 1, with high forest coverage, there may be ten individuals at a patch but only four may be detectable due to the high forest coverage. Ten years later, because of forest loss, there may only be four individuals, and three of them can be detected. This may appear as only a slight population decrease, when in reality the population decreased from ten to four at this site.}
 	\label{fig:example}
 \end{figure}
 
@@ -412,7 +412,7 @@ Combined with the slope $< 1$, this indicates a slight downward bias of trends i
 
 \begin{figure}[h]
 	\includegraphics{../output/plots/route-vs-point.png}
-	\caption{Index of abundance (A) and trend (B) derived from POINT model versus ROUTE model. Each point in A represents an index of abundance for a stratum x year combination, whereas each point in B represents a trend estimate for a stratum. Regression lines (black) and posterior draws (grey) indicate modelled relationship.}
+	\caption{Index of abundance (A) and trend (B) derived from POINT model versus ROUTE model. Each point in A represents an index of abundance at the midyear in each stratum, whereas each point in B represents a trend estimate for a stratum. Regression lines (black) and posterior draws (grey) indicate modelled relationship.}
 	\label{fig:route-vs-point}
 \end{figure}
 
@@ -422,7 +422,7 @@ Median 90\% credible interval width for ROUTE strata trends was 8.24, which was 
 
 \begin{figure}[h]
 	\includegraphics{../output/plots/precision_comparison.png}
-	\caption{TO DO}
+	\caption{Boxplot of 90\% credible interval widths for trend estimates from each model.}
 	\label{fig:precision}
 \end{figure}
 
@@ -436,7 +436,7 @@ On the other hand, distance model variance propagation parameters (i.e., $\xi$ i
 
 \begin{figure}[h]
 	\includegraphics{../output/plots/varprop-diagnostics.png}
-	\caption{Diagnostics of variance propagation as suggested by \citet{bravington_variance_2021}. A) Index of abundance as derived from the DETECT model versus index of abundance as derived from the VARPROP model, for each stratum x year combination (points). Regression line (black) and posterior draws (grey) indicate modelled relationship. B) Variance propagation parameter posterior distributions for availability. Because we are using the ``best" NA-POPS removal model for Ovenbird, we only have parameter distributions for the Intercept, Ordinal Day, and Ordinal Day squared terms. C) Variance propagation parameter posterior distributions for perceptibility. Similar to B), because we are using the ``best" NA-POPS distance model for Ovenbird, we include distributions for the Intercept, Forest, Road, and interaction terms.}
+	\caption{Diagnostics of variance propagation as suggested by \citet{bravington_variance_2021}. A) Index of abundance as derived from the DETECT model versus index of abundance as derived from the VARPROP model, from the midyear from each stratum (points). Regression line (black) and posterior draws (grey) indicate modelled relationship. B) Variance propagation parameter posterior distributions for availability. Because we are using the ``best" NA-POPS removal model for Ovenbird, we only have parameter distributions for the Intercept, Ordinal Day, and Ordinal Day squared terms. C) Variance propagation parameter posterior distributions for perceptibility. Similar to B), because we are using the ``best" NA-POPS distance model for Ovenbird, we include distributions for the Intercept, Forest, Road, and interaction terms.}
 	\label{fig:varprop-diagnostics}
 \end{figure}
 
@@ -463,7 +463,7 @@ More generally, we see differences in trends on a larger scale, particularly ass
 
 \begin{figure}[h]
 	\includegraphics{../output/plots/OVENpoint-vs-detectability-map.png}
-	\caption{TO DO}
+	\caption{Difference in trend between the VARPROP and POINT model (i.e., VARPROP - POINT; A) and the DETECT and POINT model (i.e., DETECT - POINT; B).}
 	\label{fig:route-change}
 \end{figure}
 
