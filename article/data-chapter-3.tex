@@ -62,13 +62,23 @@ Table \ref{params_table} provides a reference guide to all the parameters used i
 		$I(o,j,t)$&1 if observer is surveying point $j$ in year $t$ for the first time, 0 otherwise&Equation \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
 		$p_{j,i,t}$&Probability of availability at point $j$ in stratum $i$ in year $t$&Equation \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
 		$q_{j,i,t}$&Probability of perceptibility at point $j$ in stratum $i$ in year $t$&Equation \ref{bbs-point}, \ref{bbs-detect}, \ref{bbs_varprop}\\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+	\caption{Table \ref{params_table} continued}
+	\begin{tabular}[t]{l>{\raggedright}p{0.5\linewidth}>{\raggedright\arraybackslash}p{0.3\linewidth}}
+		\hline
+		Parameter or Datum&Description&Model\\
+		\hline
 		$\kappa_{j,i,t}^{(p)}$&Design matrix for availability variance propagation; first derivatives of probability of availability \citep{bravington_variance_2021}&Equation \ref{bbs_varprop}\\
 		$\kappa_{j,i,t}^{(q)}$&Design matrix for perceptibility variance propagation; first derivatives of probability of perceptibility \citep{bravington_variance_2021}&Equation \ref{bbs_varprop}\\
 		$\zeta$&Effects vector for availability variance propagation \citep{bravington_variance_2021}&Equation \ref{bbs_varprop}\\
 		$\xi$&Effects vector for perceptibility variance propagation \citep{bravington_variance_2021}&Equation \ref{bbs_varprop}\\
 		\hline
 	\end{tabular}
-\end{table}%
+\end{table}
 
 \subsection{Current BBS Protocol and Analysis}\label{current-bbs}
 
