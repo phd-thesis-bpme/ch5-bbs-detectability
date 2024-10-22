@@ -145,7 +145,7 @@ That is, each $n_{i,t}$ would represent the expected count on an average BBS poi
 However, we could have also chosen to model each point-level random effect in a multi-level model with route-level hyperparameters if we wanted to share information between points within routes.
 We tested the sensitivity of this point-level model, as well as the detectability models described next, to the presence or absence of this route-level hyperparameter.
 We ultimately decided that, at least for Ovenbird, there was no real benefit (or difference) in using the route-level hyperparameter, and so we did not include it here.
-This comparison and analysis can be found in Appendix A.
+%This comparison and analysis can be found in Appendix A.
 
 \subsection{A Point-level Model that Explicitly Includes Detectability}\label{detect-text}
 
@@ -492,34 +492,6 @@ Additionally, in more open habitats, there is no differentiation between, for ex
 Previous studies have shown differences in detectability via sound attenuation based on different habitat types \citep{schieck_biased_1997}, implying that a simple ``open" versus ``closed" may not quite be sufficient in explaining detectability.
 Thus, we suggest future iterations of detectability estimates from NA-POPS, and future applications of those detectability estimates to datasets such as the BBS, consider habitat types in addition to the amount of open or closed forest.
 It would then be worth investigating whether that eliminates the bias seen in Figure \ref{fig:varprop-diagnostics}.
-
-\subsection{Applications and Implications for Conservation Managers}
-\subsubsection{Improve Trend Estimates for Species Listing}
-
-\par North American Breeding Bird Survey data have been highly useful in conservation \citep{hudson_role_2017}.
-The dataset is long term, with close to 60 years of longitudinal data; it is highly structured, meaning there are specific protocols that must be followed in order to maintain a sense of homogeneity between counts; and the routes span a vast area of Canada and the US.
-
-\par Despite being a highly-structured dataset that has many biases accounted for, observed counts on a BBS route will still suffer from observational biases based on changing landcover through time at survey locations.
-By explicitly incorporating detectability into the BBS analyses, we can correct for some of these additional sources of bias in the dataset in our attempts at trying to model the true underlying abundance of birds.
-Similarly, given detectability is currently a dynamic field of research, future BBS outputs that include the most up-to-date research on detectability can begin to generate trends that more closely reflect the true increases or decreases of bird species.
-This is particularly important in jurisdictions such as Canada that rely on estimates from the BBS to inform the listing and delisting process of species at risk.
-Species where the true trend is masked by changes in detectability may not get properly listed, and thus could face continuing threats and issues that come with ``monitoring to extinction" \citep{martin_acting_2012, lindenmayer_counting_2013}.
-By including this key piece of information, and by being able to account for a large source of bias, the BBS can continue to provide excellent information on status, trends, and relative abundance of birds in North America well into the future.
-
-\subsubsection{Data Integration}
-
-\par Data integration is a growing topic throughout ecology \citep{isaac_data_2020, miller_recent_2019, pacifici_integrating_2017, boersch-supan_integrating_2021}, especially as the number of data sets continue to grow \citep{binley_minimizing_2023}.
-As such, recognizing what biases exist---in both professionally-collected data and community science data \citep{binley_data_2023}---across complementary data sets and working out methodologies to jointly model these data sets can improve inference of the state of a biological system.
-
-\par While the BBS samples a vast area of Canada and the US, there are still significant gaps in coverage, such as offroad areas, and the boreal forest. 
-However, programs such as Integrating Monitoring in Bird Conservation Regions \citep{pavlacky_statistically_2017}, Boreal Avian Modelling project \citep{cumming_toward_2010}, and eBird \citep{sullivan_ebird_2014} can help fill in these gaps.
-The point-level model in this study combined with the NA-POPS estimates provide a potentially simple way of integrating these data within the current BBS status and trend models, because the NA-POPS detectability estimates correct for biases in survey duration, survey radius, environmental conditions, and temporal conditions.
-As such, once QPAD \citep{solymos_calibrating_2013} estimates are applied to a point count, including points from the BBS, it is effectively ``speaking the same language" as other point count data sets with QPAD offsets applied.
-In this way, the data can be jointly considered under the same modelling framework.
-We propose that future studies investigate how to directly include data from Boreal Avian Modelling project, Integrated Monitoring in Bird Conservation Regions, eBird, and other data sets across the continent, into the BBS modelling framework.
-We suspect that such a model would have a similar model structure as Equation \ref{bbs_varprop}, but perhaps with extra terms for project-specific effects.
-Because counts within a stratum are averaged for trend, even if additional data is sparse in a specific stratum, it will still contribute to the trend.
-
 
 \subsection{Call to Action: The Need for BBS Point Locations}
 
