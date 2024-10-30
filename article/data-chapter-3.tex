@@ -12,8 +12,8 @@ As such, it is crucial to have precise and accurate trend estimates through time
 \par All biological data, including long-term biological data, have challenges.
 One of the principal challenges in any biological data collection is detectability \citep{bennett_how_2024}.
 In the BBS, unmodeled or uncontrolled changing of detectability of birds through time can bias estimates of trends from BBS models.
-The BBS field methods currently control for many factors that are known to affect detectability, such as observer effects \citet{sauer_observer_1994}.
-Some sources of potential changing detectability can be modeled using route-level summaries \cite{smith_patterns_2023}, including changes in traffic during surveys \citep{griffith_traffic_2010} and changes in phenology \citep{english_current_2021}.
+The BBS field methods currently control for many factors that are known to affect detectability, such as observer effects \citep{sauer_observer_1994}.
+Some sources of potential changing detectability can be modeled using route-level summaries \citep{smith_patterns_2023}, including changes in traffic during surveys \citep{griffith_traffic_2010} and changes in phenology \citep{english_current_2021}.
 However, many of the factors affecting detectability may vary among the points within a given route.
 For example, changes in forest cover through time at a specific point within a route will result in changes in detectability at that point.
 If forest coverage increases, then detectability for many bird species will generally decrease, and vice versa if forest coverage decreases \citep{edwards_point_2023, yip_sound_2017}.
@@ -94,7 +94,7 @@ We also have a first-year observer term $\eta$ that is present if the route $J$ 
 Finally, we also have a random noise term $\epsilon_{J,i,t,o}$.
 Because this model is estimated in a Bayesian context, we set priors on these parameters based on previous work from \citet{smith_north_2021} and \citet{smith_spatially_2023}.
 
-\par To estimate annual population indices, we use the population index calculation from \citet{smith_north_2021} to calculate indices of abundance at a stratified level:
+\par To estimate annual population indices, I use the population index calculation from \citet{smith_north_2021} to calculate indices of abundance at a stratified level:
 
 \begin{equation}\label{index}
 	n_{i,t} = \dfrac{\sum_{J\in S_i}\exp(\alpha_i + \psi_J + \delta_{i,t})}{|S_i|}.
@@ -124,24 +124,24 @@ where
 \begin{equation}\label{bbs-point}
 	\log(\lambda_{j,i,t,o}) = \alpha_i + \delta_{i,t} + \gamma_{i,t} + \psi_j + \omega_o + \eta I(o,j,t) + \epsilon_{j,i,t,o}.
 \end{equation}
-Here, we can use all the same priors as previously outlined in \citet{smith_north_2021} and \citet{smith_spatially_2023}, as well as the same ICAR and GAM model structures for $\alpha_i$ and $\delta_{i,t}$, respectively.
+Here, I can use all the same priors as previously outlined in \citet{smith_north_2021} and \citet{smith_spatially_2023}, as well as the same ICAR and GAM model structures for $\alpha_i$ and $\delta_{i,t}$, respectively.
 
-\par Equation \ref{bbs-point} is nearly identical to the original route model outlined in Equation \ref{bbs}, except that we are considering point $j$ rather than route $J$.
+\par Equation \ref{bbs-point} is nearly identical to the original route model outlined in Equation \ref{bbs}, except that I am now considering point $j$ rather than route $J$.
 Additionally, the index of abundance calculation described in Equation \ref{index} would also remain nearly identical, except that the summation term would be summing over all points $j$ in stratum $S_i$, rather than all routes $J$ in stratum $S_i$. 
 That is, each $n_{i,t}$ would represent the expected count on an average BBS point conducted by an average observer in a given year, at the stratum level.
 
-\par For this particular model, we are assuming that each point-level random effect $\psi_j$ is an independent realization of a Student's $t$-distribution, similar to realizations for each route-level random effect $\psi_J$ in \citet{smith_north_2021, smith_spatially_2023}.
-However, we could have also chosen to model each point-level random effect in a multi-level model with route-level hyperparameters if we wanted to share information between points within routes.
-We tested the sensitivity of this point-level model, as well as the detectability models described next, to the presence or absence of this route-level hyperparameter.
-We ultimately decided that, at least for Ovenbird, there was no real benefit (or difference) in using the route-level hyperparameter, and so we did not include it here.
-%This comparison and analysis can be found in Appendix A.
+\par For this particular model, I am assuming that each point-level random effect $\psi_j$ is an independent realization of a Student's $t$-distribution, similar to realizations for each route-level random effect $\psi_J$ in \citet{smith_north_2021, smith_spatially_2023}.
+However, I could have also chosen to model each point-level random effect in a multi-level model with route-level hyperparameters if we wanted to share information between points within routes.
+I tested the sensitivity of this point-level model, as well as the detectability models described next, to the presence or absence of this route-level hyperparameter.
+I ultimately decided that, at least for Ovenbird, there was no real benefit (or difference) in using the route-level hyperparameter, and so I did not include it here.
+This comparison and analysis can be found in Appendix B.
 
 \subsection{A Point-level Model that Explicitly Includes Detectability}\label{detect-text}
 
-\par Equation \ref{bbs-point} gives us the ability to model specifically at the point-count level, which provides us the opportunity to incorporate point-specific effects such as detectability.
+\par Equation \ref{bbs-point} provides the ability to model specifically at the point-count level, which then provides the opportunity to incorporate point-specific effects such as detectability.
 Changes in detectability will affect how many individuals are counted during a given point count, relative to the total number of individuals of the species present at the site.
-Here, we incorporate detectability as an offset, such that each count is adjusted based on the duration of the survey, maximum point-count radius, and combinations of survey start time and survey time of year (which affect probability of availability $p$), as well as roadside effects and forest coverage (which affect probability of perception $q$). 
-Thus, the specific offset at point $j$, year $t$, in stratum $i$ would be given by $\log(p q)_{j,i,t}$, and our model becomes:
+Here, I incorporate detectability as an offset, such that each count is adjusted based on the duration of the survey, maximum point-count radius, and combinations of survey start time and survey time of year (which affect probability of availability $p$), as well as roadside effects and forest coverage (which affect probability of perception $q$). 
+Thus, the specific offset at point $j$, year $t$, in stratum $i$ would be given by $\log(p q)_{j,i,t}$, and the model becomes:
 
 \begin{equation*}
 	Y_{j,i,t,o} | \alpha_i, \delta_{i,t}, \gamma_{i,t}, \psi_j, \omega_o, \eta \sim NegBin \left( \dfrac{\lambda_{j,i,t,o}}{p_{j,i,t}q_{j,i,t}}, \nu \right)
@@ -150,19 +150,19 @@ Thus, the specific offset at point $j$, year $t$, in stratum $i$ would be given 
 	\log(\lambda_{j,i,t,o}) = \log(p_{j,i,t}q_{j,i,t}) + \alpha_i + \delta_{i,t} + \gamma_{i,t} + \psi_j + \omega_o + \eta I(o,j,t) + \epsilon_{j,i,t,o}.
 \end{equation}
 
-\par When calculating the index of abundance, we could calculate the index at each point given the specific detectability conditions at that point in time.
-In that case, we would include the term $\log(p_{j,i,t}q_{j,i,t})$ in the exponent of Equation \ref{index}.
-Alternatively, we could calculate the index of abundance under perfect detection: if we set $p = q = 1$, then $\log(p_{j,i,t}q_{j,i,t}) = \log(1) = 0$, and our original index of abundance calculation given by Equation \ref{index} holds as normal.
-For the remainder of this paper, when we calculate index of abundance from a model that incorporates detectability (i.e., either this model or the following model that propagates error) we will calculate index of abundance under perfect detection, such that the index of abundance represents the mean expected count at point $j$ in stratum $i$ during year $t$ by observer $o$, \textit{given perfect detectability}.
+\par When calculating the index of abundance, I could calculate the index at each point given the specific detectability conditions at that point in time.
+In that case, I would include the term $\log(p_{j,i,t}q_{j,i,t})$ in the exponent of Equation \ref{index}.
+Alternatively, I could calculate the index of abundance under perfect detection: if we set $p = q = 1$, then $\log(p_{j,i,t}q_{j,i,t}) = \log(1) = 0$, and our original index of abundance calculation given by Equation \ref{index} holds as normal.
+For the remainder of this chapter, when I calculate index of abundance from a model that incorporates detectability (i.e., either this model or the following model that propagates error), I will calculate index of abundance under perfect detection, such that the index of abundance represents the mean expected count at point $j$ in stratum $i$ during year $t$ by observer $o$, \textit{given perfect detectability}.
 
 \subsubsection{A Point-level Model that Includes Detectability and Propagates Error}\label{varprop-text}
 
-\par Because we are using estimated values of $p$ and $q$ (i.e., $\hat{p}$ and $\hat{q}$) from the NA-POPS database \citep{edwards_point_2023}, we must also have a way to propagate the uncertainty around these detectability estimates. 
-\citet{bravington_variance_2021} gives us a method to propagate uncertainty for a detectability offset into a GAM model. 
-Here, we provide detailed derivations this variance propagation
-We note that these are nearly the exact same derivations as outlined in \citet{bravington_variance_2021}, but we include them here for the sake of completeness.
+\par Because I am using estimated values of $p$ and $q$ (i.e., $\hat{p}$ and $\hat{q}$) from the NA-POPS database \citep{edwards_point_2023}, I must also have a way to propagate the uncertainty around these detectability estimates. 
+\citet{bravington_variance_2021} provides a method to propagate uncertainty for a detectability offset into a GAM model. 
+Here, I provide detailed derivations this variance propagation.
+I note that these are nearly the exact same derivations as outlined in \citet{bravington_variance_2021}, but I include them here for the sake of completeness.
 
-\par First, we start with $\log(pq) = \log(p) + \log(q)$.
+\par First, let us start with $\log(pq) = \log(p) + \log(q)$.
 We will only work on the $\log(p)$ term here to start. 
 If we rewrite $\log(p) = \log(\hat{p}) + \log(p) - \log(\hat{p})$, we can then perform a Taylor expansion of $\log(\hat{p}) = \log p(\hat{\theta})$ about $\theta_0$, the true and unknown value of $\theta$:
 
@@ -216,59 +216,59 @@ Putting everything together, we arrive at the following point-level model that i
 
 \section{Case Study: Ovenbird Trends and Trajectories in Canada, 2010 - 2022}
 
-\par We applied the point-level BBS model (Equation \ref{bbs-point}), detectability BBS model (Equation \ref{bbs-detect}), and the variance propagation BBS model (Equation \ref{bbs_varprop}) to the Ovenbird BBS data to compare trend estimates obtained by these three models to trend estimates obtained via the current BBS route-level model described in \citet{smith_spatially_2023}.
+\par I applied the point-level BBS model (Equation \ref{bbs-point}), detectability BBS model (Equation \ref{bbs-detect}), and the variance propagation BBS model (Equation \ref{bbs_varprop}) to the Ovenbird BBS data to compare trend estimates obtained by these three models to trend estimates obtained via the current BBS route-level model described in \citet{smith_spatially_2023}.
 The following subsections describe the data acquisition (for BBS data, landcover data, and detectability data) and modelling experiments performed for this case study.
 
 \subsection{Data Acquisition}
 
 \subsubsection{Breeding Bird Survey Data}
 
-\par We used the R package \texttt{bbsBayes2} to download and process BBS data \citep{edwards_bbsbayes_2021}. 
-For analysis with the route-level model, we followed the same data preparation steps as normal, in that data were downloaded using \texttt{bbsBayes2}, stratified based on a 1-degree by 1-degree block of latitude and longitude, and prepared for modelling in Stan \citep{stan_development_team_stan_2024}.
-For point-level data, we accessed a database of known stop locations from the Canadian Wildlife Service BBS office, and matched these locations with each of the stops available from the stop-level data download from \texttt{bbsBayes2}.
-Because we were only able to obtain known stop locations from Canadian Wildlife Service, our analysis is limited to Canada.
-%We note, however, a method for estimating known BBS locations given a BBS route shapefile (CITE), and so future analyses could take advantage of that.
+\par I used the R package \texttt{bbsBayes2} to download and process BBS data \citep{edwards_bbsbayes_2021}. 
+For analysis with the route-level model, I followed the same data preparation steps as normal, in that data were downloaded using \texttt{bbsBayes2}, stratified based on a 1-degree by 1-degree block of latitude and longitude, and prepared for modelling in Stan \citep{stan_development_team_stan_2024}.
+For point-level data, I accessed a database of known stop locations from the Canadian Wildlife Service BBS office, and matched these locations with each of the stops available from the stop-level data download from \texttt{bbsBayes2}.
+Because I was only able to obtain known stop locations from Canadian Wildlife Service, this analysis is limited to Canada.
+I note, however, a method for estimating known BBS locations given a BBS route shapefile \citep{burner_informative_2024}, and so future analyses could take advantage of that.
 
 \subsubsection{Landcover Data}
 
-\par We downloaded the following data products from the North American Land Change Monitoring System: Land Cover, 2010 (Landsat, 30m); Landcover, 30m, 2015 (Landsat and RapidEye); and North American Land Cover, 2020 (Landsat, 30m).
-Thus, we were able to obtain landcover at 30m resolution for the years 2010, 2015, and 2020. 
-For each known BBS point, we created a 400 m radius buffer around the point (representing the maximum survey distance for each point), and calculated the proportion of forest coverage for 2010, 2015, and 2020. 
-We used linear interpolation at each point to obtain forest coverage from 2011 - 2014 and from 2016 - 2019. 
-Because we were interested in analyzing data up to and including the year 2022, we simply copied the forest coverage value in 2020 forward for the years 2021 and 2022, so as to make conservative assumptions about how the landcover might have changed in the last two years.
+\par I downloaded the following data products from the North American Land Change Monitoring System: Land Cover, 2010 (Landsat, 30m); Landcover, 30m, 2015 (Landsat and RapidEye); and North American Land Cover, 2020 (Landsat, 30m).
+Thus, I was able to obtain landcover at 30m resolution for the years 2010, 2015, and 2020. 
+For each known BBS point, I created a 400 m radius buffer around the point (representing the maximum survey distance for each point), and calculated the proportion of forest coverage for 2010, 2015, and 2020. 
+I used linear interpolation at each point to obtain forest coverage from 2011 - 2014 and from 2016 - 2019. 
+Because I was interested in analyzing data up to and including the year 2022, I simply copied the forest coverage value in 2020 forward for the years 2021 and 2022, so as to make conservative assumptions about how the landcover might have changed in the last two years.
 
-\par Because the BBS is inherently a roadside survey, we did not have to classify whether a point was a roadside survey or not.
-Instead, we simply set all points to be roadside surveys for the purposes of estimating detectability.
+\par Because the BBS is inherently a roadside survey, I did not have to classify whether a point was a roadside survey or not.
+Instead, I simply set all points to be roadside surveys for the purposes of estimating detectability.
 
 \subsubsection{Detectability Data}
 
-\par We used the R package \texttt{napops} \citep{edwards_napops_2024} to calculate the value of availability $\hat{p}$ and perceptibility $\hat{q}$ at each point.
-To obtain availability, we needed to have the time at which a point was run, and the day of the year that it was run.
+\par I used the R package \texttt{napops} \citep{edwards_napops_2024} to calculate the value of availability $\hat{p}$ and perceptibility $\hat{q}$ at each point.
+To obtain availability, I needed to have the time at which a point was run, and the day of the year that it was run.
 Day of the year was calculated as days since 1 January of that year.
-Time of day was calculated as follows: given the start time and end time of a BBS route (which is available with the data download), we partitioned this duration of time into the number of points run for that particular route.
-We note that normally the number of points run per route should be 50, but there is flexibility in what is considered a ``complete" route.
+Time of day was calculated as follows: given the start time and end time of a BBS route (which is available with the data download), I partitioned this duration of time into the number of points run for that particular route.
+I note that normally the number of points run per route should be 50, but there is flexibility in what is considered a ``complete" route.
 These partitioned times were then used as estimated start times for each of the points. 
-Of course, there is uncertainty associated with these start times, but we chose to ignore it this time.
-Availability was then obtained by inputting the vector of start times, day of the year, and survey durations (3 minutes per point) into the avail() function in \texttt{napops}.
-Finally, to obtain perceptibility, we input the vector of forest coverage associated with each point, roadside status (which was TRUE for all points), and the maximum survey radius (400 m for BBS points) into the percept() function in \texttt{napops}.
+Of course, there is uncertainty associated with these start times, but I chose to ignore it this time (but see \citep{burner_informative_2024}).
+Availability was then obtained by inputting the vector of start times, day of the year, and survey durations (3 minutes per point) into the \texttt{avail()} function in \texttt{napops}.
+Finally, to obtain perceptibility, I input the vector of forest coverage associated with each point, roadside status (which was TRUE for all points), and the maximum survey radius (400 m for BBS points) into the percept() function in \texttt{napops}.
 
-\par The \texttt{napops} R package was also updated for this paper to include the ability to access the covariance matrix for the associated availability and perceptibility models, as well as the ability to calculate the value of first derivative of the detection functions evaluated at its maximum likelihood estimate, as previously described.
+\par The \texttt{napops} R package was also updated for this chapter to include the ability to access the covariance matrix for the associated availability and perceptibility models, as well as the ability to calculate the value of first derivative of the detection functions evaluated at its maximum likelihood estimate, as previously described.
 
 \subsection{Case Study Overview}
 
-Using the methods as described above, we first ran a route-level model for the years 2010 - 2022 to obtain indices and trends for Ovenbird as a baseline comparison.
-Then, we obtained the landcover and detectability data for Ovenbird and ran the detectability model for the same years.
-For Ovenbird, we used the ``best" models of availability and perceptibility as determined in \citet{edwards_point_2023}: the model that included Ordinal Day and its quadratic term was the best model for availability, and the model that included Roadside, Forest Coverage, and the interaction term was the best model for perceptibility.
-Finally, we ran the variance propagation model for the same years as above.
+Using the methods as described above, I first ran a route-level model for the years 2010 - 2022 to obtain indices and trends for Ovenbird as a baseline comparison.
+Then, I obtained the landcover and detectability data for Ovenbird and ran the detectability model for the same years.
+For Ovenbird, I used the ``best" models of availability and perceptibility as determined in \citet{edwards_point_2023}: the model that included Ordinal Day and its quadratic term was the best model for availability, and the model that included Roadside, Forest Coverage, and the interaction term was the best model for perceptibility.
+Finally, I ran the variance propagation model for the same years as above.
 These model runs resulted in four sets of indices and hence four time series.
-We denote them as follows: ROUTE, for indices and trends from the route-level model (Equation \ref{bbs}); POINT, for indices and trends from the point-level model (Equation \ref{bbs-point}); DETECT, for indices and trends from the point-level model that includes detectability (Equation \ref{bbs-detect}); and VARPROP, for indices and trends from the point-level model that includes detectability and variance propagation (Equation \ref{bbs_varprop}).
+I denote them as follows: ROUTE, for indices and trends from the route-level model (Equation \ref{bbs}); POINT, for indices and trends from the point-level model (Equation \ref{bbs-point}); DETECT, for indices and trends from the point-level model that includes detectability (Equation \ref{bbs-detect}); and VARPROP, for indices and trends from the point-level model that includes detectability and variance propagation (Equation \ref{bbs_varprop}).
 
 \subsubsection{Comparing Indices and Trends from ROUTE versus POINT}\label{route-vs-point}
 
 \par Before considering how detectability affects index and trend calculation from BBS data, we must first ensure that a point-level model does not significantly change the overall trends compared to the route model, and that the indices calculated from the point-level model vary predictably from the route-level model.
 That is, we want to ensure that the point-level model can serve as a reasonable proxy for the route-level model for later comparisons of detectability versus no detectability.
 
-\par To assess how the POINT indices served as a proxy for ROUTE indices, we modelled each ROUTE index at the midyear (2016) as a linear combination of its corresponding POINT index at the midyear, for each route-year combination. 
+\par To assess how the POINT indices served as a proxy for ROUTE indices, I modelled each ROUTE index at the midyear (2016) as a linear combination of its corresponding POINT index at the midyear, for each route-year combination. 
 That is:
 
 $$	n_{ROUTE} \sim N(\alpha + \beta \times n_{POINT}, \sigma) $$
@@ -276,9 +276,9 @@ $$	\alpha \sim N(0,1) $$
 $$	\beta \sim N(50, 1) $$
 $$	\sigma \sim exp(1)$$
 
-If POINT indices are a reasonable proxy for ROUTE indices, then we would expect to see $\alpha \approx 0$ and $\beta \approx 50$; given there are 50 points per route, it is reasonable to assume that stratum indices calculated at the route level should be approximately 50 times those calculated at the point level.
+If POINT indices are a reasonable proxy for ROUTE indices, then I would expect to see $\alpha \approx 0$ and $\beta \approx 50$; given there are 50 points per route, it is reasonable to assume that stratum indices calculated at the route level should be approximately 50 times those calculated at the point level.
 
-\par Similarly with trend, we modelled each ROUTE trend as a linear combination of its corresponding POINT trend, for each stratum.
+\par Similarly with trend, I modelled each ROUTE trend as a linear combination of its corresponding POINT trend, for each stratum.
 That is:
 
 $$ T_{ROUTE} \sim N(\alpha + \beta \times T_{POINT}, \sigma)$$
@@ -286,28 +286,28 @@ $$ \alpha \sim N(0,1) $$
 $$ \beta \sim N(1,1) $$
 $$ \sigma \sim exp(1) $$
 
-If POINT trends are a reasonable proxy for ROUTE trends, then we would expect to see $\alpha \approx 0$ and $\beta \approx 1$, indicating a nearly 1-to-1 correspondence. 
+If POINT trends are a reasonable proxy for ROUTE trends, then I would expect to see $\alpha \approx 0$ and $\beta \approx 1$, indicating a nearly 1-to-1 correspondence. 
 
 \subsubsection{Variance Propagation Diagnostics}
 
 \par \citet{bravington_variance_2021} give a few relatively straightforward diagnostics to assess consistency between the detectability portion of the model and the abundance portion of the model, given the error propagation.
-For this case study, we provide two diagnostics.
+For this case study, I provide two diagnostics.
 The first is to simply compare the indices and trends obtained from the VARPROP model to those obtained from the DETECT model to ensure that there are not large differences, particularly in space. 
-We can assess this similar to subsection \ref{route-vs-point} where we simply model the VARPROP indices and trends as functions of the DETECT indices and trends.
-Second, we assess the posterior distribution of the variance propagation parameters $\zeta$ and $\xi$.
+I can assess this similar to subsection \ref{route-vs-point} where we simply model the VARPROP indices and trends as functions of the DETECT indices and trends.
+Second, I assess the posterior distribution of the variance propagation parameters $\zeta$ and $\xi$.
 A posterior distribution that centres reasonably close to 0 implies that there is no systematic bias in the detectability functions that contribute to the pattern of observations, and hence the detectability functions do not need ``correction".
 
 \subsubsection{Comparing Precision of Trends Among Models}
 
-\par We were interested in assessing how incorporating detectability would affect the precision of trend estimates in each stratum.
-To do so, we created a simple boxplot of all 90\% credible interval widths for each trend per stratum, for each model.
-We expected that the DETECT models would produce slightly more precise trend estimates than the ROUTE or POINT models, because an additional source of variation would now be accounted for with the detectability estimates.
-We also expected that VARPROP models would produce trend estimates with similar precision to that of the DETECT models, with the potential for a slight increase in precision if the variance propagation accounted for any additional biases in the detectability functions.
+\par I was interested in assessing how incorporating detectability would affect the precision of trend estimates in each stratum.
+To do so, I created a simple boxplot of all 90\% credible interval widths for each trend per stratum, for each model.
+I expected that the DETECT models would produce slightly more precise trend estimates than the ROUTE or POINT models, because an additional source of variation would now be accounted for with the detectability estimates.
+I also expected that VARPROP models would produce trend estimates with similar precision to that of the DETECT models, with the potential for a slight increase in precision if the variance propagation accounted for any additional biases in the detectability functions.
 
 \subsubsection{Comparing Indices and Trends from POINT versus VARPROP}
 
-\par We were interested to see how the incorporation of detectability affects index and trend estimates of Ovenbird.
-In particular, we are interested in seeing if including detectability in the BBS trend model can possibly correct for systematic biases that may be present due to changing forest coverage.
+\par I was interested to see how the incorporation of detectability affects index and trend estimates of Ovenbird.
+In particular, I was interested in seeing if including detectability in the BBS trend model can possibly correct for systematic biases that may be present due to changing forest coverage.
 For example, consider a BBS point that has undergone significant forest coverage change over the last decade (Figure \ref{fig:example}).
 At the beginning of the decade, suppose this point was heavily forested, and was territory for ten Ovenbirds. 
 Because detectability in forested areas is generally lower than open areas due to sound attenuation \citep{yip_sound_2017}, we might expect an average observer to only detect, say, 40\% of these ten Ovenbirds, given they give a cue (i.e., sing) during the 3-minute point count.
@@ -316,8 +316,8 @@ However, because of the loss in forest, detectability of the remaining Ovenbirds
 When we calculate a trend, we would be calculating the trend from our observed counts of 4 and 3 in the ten year span; in reality, the true number of Ovenbirds went from 10 to 4, but we may not have detected all 10 at the heavily forested point due to lower detectability.
 Therefore, without accounting for detectability, this may appear to only be a slight population decrease, whereas in reality the population has decreased significantly more.
 
-\par For this comparison, we focused on trend estimates for a route that experienced a particularly high change in forest coverage, such that the forest coverage at the beginning of the time series was significantly higher than the forest coverage at the end of the time series.
-Then, we compared trends and trajectories from the POINT model to those from the VARPROP model, to assess if there were any differences after accounting for the changes in detectability due to changing forest coverage.
+\par For this comparison, I focused on trend estimates for a route that experienced a particularly high change in forest coverage, such that the forest coverage at the beginning of the time series was significantly higher than the forest coverage at the end of the time series.
+Then, I compared trends and trajectories from the POINT model to those from the VARPROP model, to assess if there were any differences after accounting for the changes in detectability due to changing forest coverage.
 
 \begin{figure}[h]
 	\includegraphics{../ch5-bbs-detectability/article/abundance-detectability_scaled.png}
@@ -328,19 +328,19 @@ Then, we compared trends and trajectories from the POINT model to those from the
 \subsection{Analysis}
 \par All analyses were conducted in R version 4.3.1 \citep{r_core_team_r_2024}.
 All Bayesian models were coded in the Stan Probabilistic Language \citep{stan_development_team_stan_2024} and run using the \texttt{cmdstanr} R package \citep{gabry_cmdstanr_2023}.
-We used the same priors as in \citet{smith_spatially_2023}, which are the default priors in the \texttt{bbsBayes2} R package.
+I used the same priors as in \citet{smith_spatially_2023}, which are the default priors in the \texttt{bbsBayes2} R package.
 All models were run for four independent chains and were allowed to warm up for 1000 iterations and sample for 2000 iterations per chain.
 This resulted in a total of 8000 samples per parameter, per model.
-We assessed convergence using the split R-hat statistic \citep{vehtari_rank-normalization_2021}.
+I assessed convergence using the split R-hat statistic \citep{vehtari_rank-normalization_2021}.
 All models were run on one of two multi-core processing servers, one running Ubuntu 20.04.4 LTS and one running Ubuntu 20.04.6 LTS.
 
-\par All code is available open-source at https://github.com/BrandonEdwards/bbs-point-level, and will be archived with a DOI upon acceptance of this paper.
+\par All code is available open-source at https://github.com/BrandonEdwards/bbs-point-level.
 
 \section{Results}
 
-\par Using the ROUTE, POINT, DETECT, and VARPROP model output, we generated trends (Figure \ref{fig:oven-map}) and trajectories (Figure \ref{fig:oven-trajectories}) for Ovenbird in Canada from 2010 - 2022.
+\par Using the ROUTE, POINT, DETECT, and VARPROP model output, I generated trends (Figure \ref{fig:oven-map}) and trajectories (Figure \ref{fig:oven-trajectories}) for Ovenbird in Canada from 2010 - 2022.
 The overall trends among the four models were similar to each other: trend from the ROUTE model was an increase of $0.65\%$ with a 90\% credible interval of $[0.11\%, 1.24\%]$; trend from the POINT model was an increase of $1.14\%$ with a 90\% credible interval of $[0.57\%, 1.73\%]$; trends from the DETECT model was an increase of $0.88\%$ with a 90\% credible interval of $[0.28\%, 1.51\%]$; and trend from the VARPROP model was an increase of $0.82\%$ with a 90\% credible interval of $[0.26\%, 1.39\%]$.
-We note that the y-axis of the four time series in Figure \ref{fig:oven-trajectories} are rather different from each other: the y-axis for the ROUTE time series is the expected number of observed Ovenbirds on an average route; the y-axis for the POINT time series is the expected number of observed Ovenbirds on an average point; and the y-axis for the DETECT and VARPROP time series is the expected number of observed Ovenbirds on an average 400 m radius point, given perfect detectability.
+I note that the y-axis of the four time series in Figure \ref{fig:oven-trajectories} are rather different from each other: the y-axis for the ROUTE time series is the expected number of observed Ovenbirds on an average route; the y-axis for the POINT time series is the expected number of observed Ovenbirds on an average point; and the y-axis for the DETECT and VARPROP time series is the expected number of observed Ovenbirds on an average 400 m radius point, given perfect detectability.
 
 \begin{figure}[h]
 	\includegraphics{../ch5-bbs-detectability/output/plots/OVEN-map.png}
@@ -359,7 +359,7 @@ On average, midyear indices of abundance from the ROUTE model were approximately
 This was slightly greater than our hypothesized value of 50, but note that this could be due to some routes having fewer than 50 points.
 The y-intercept of this relationship was 0.32, with a 90\% credible interval of $[-0.11, 0.76]$, indicating little evidence for a positive or negative bias.
 Trends from each stratum tended to closely match between the ROUTE and POINT model, with an estimated slope of 0.96 and a 90\% credible interval of $[0.93, 0.99]$ (Figure \ref{fig:route-vs-point}B).
-This was slightly less than our hypothesized value of 1, indicating that there is not quite a 1-to-1 relationship (but close).
+This was slightly less than the hypothesized value of 1, indicating that there is not quite a 1-to-1 relationship (but close).
 The y-intercept of this relationship was -0.47, with a 90\% credible interval of $[-0.57, -0.38]$.
 Combined with the slope $< 1$, this indicates a slight downward bias of trends in the POINT model compared to the ROUTE model.
 
@@ -369,7 +369,7 @@ Combined with the slope $< 1$, this indicates a slight downward bias of trends i
 	\label{fig:route-vs-point}
 \end{figure}
 
-\par We did not find large differences in precision among the four models' trend estimates (Figure \ref{fig:precision}).
+\par I did not find large differences in precision among the four models' trend estimates (Figure \ref{fig:precision}).
 Median 90\% credible interval width for ROUTE strata trends was 8.24, which was only slightly higher than the median 90\% credible intervals of 7.89, 7.94, and 7.90 from the POINT, DETECT, and VARPROP models, respectively. 
 
 
@@ -381,7 +381,7 @@ Median 90\% credible interval width for ROUTE strata trends was 8.24, which was 
 
 \subsection{Variance Propagation Diagnostics}
 
-\par When comparing midyear indices between DETECT and VARPROP models, we found a near 1-to-1 correspondence, with an overall modelled slope value of $1.01$ and 90\% credible interval of $[1.00, 1.02]$ (Figure \ref{fig:varprop-diagnostics}A).
+\par When comparing midyear indices between DETECT and VARPROP models, I found a near 1-to-1 correspondence, with an overall modelled slope value of $1.01$ and 90\% credible interval of $[1.00, 1.02]$ (Figure \ref{fig:varprop-diagnostics}A).
 The y-intercept for this relationship was estimated at 0.23, with a 90\% credible interval of $[0.11, 0.35]$, indicating a slight upward bias in the VARPROP indices compared to DETECT indices.
 
 \par Removal model variance propagation parameters (i.e., $\zeta$ in Equation \ref{bbs_varprop}) were all effectively zero (Figure \ref{fig:varprop-diagnostics}B), but with varying degrees of uncertainty.
@@ -394,7 +394,7 @@ On the other hand, distance model variance propagation parameters (i.e., $\xi$ i
 \end{figure}
 
 \subsection{Effects of Changing Detectability on Trend}
-\par We found a positive relationship (slope = $9.41$ with 90\% credible interval of $[8.02, 10.7]$) between change in forest coverage and the difference between the VARPROP and POINT trend (Figure \ref{fig:trend-vs-forest}).
+\par I found a positive relationship (slope = $9.41$ with 90\% credible interval of $[8.02, 10.7]$) between change in forest coverage and the difference between the VARPROP and POINT trend (Figure \ref{fig:trend-vs-forest}).
 Put differently, strata with an average decrease in forest coverage are associated with a negative difference in trend, meaning that for strata with a decrease in forest coverage, the VARPROP model will show a more negative trend than the point model.
 As such, strata with an average increase in forest coverage are associated with positive difference in trend, meaning that for strata with an increase in forest coverage, the VARPROP model will show a more positive trend than the point model.
 
@@ -422,33 +422,33 @@ More generally, we see differences in trends on a larger scale, particularly ass
 
 \section{Discussion}
 
-\par In this paper, we described how to model BBS data at the point (or stop) level to produce trend estimates using similar model structure to current route-level trend estimates as in \citet{smith_spatially_2023}.
-We then expanded upon this point-level trend model by introducing a detectability term that allows for detection probability to explicitly be accounted for in BBS trend estimation.
-Because the detection probabilities are estimated based on data in a previous model \citep{edwards_point_2023}, we used a variance propagation technique put forth by \citet{bravington_variance_2021} to explicitly incorporate the detection probability error into the trend model.
-Finally, we applied these models in a case study by examining Ovenbird trends in Canada from 2010 - 2022, and assessed how these trends differ by accounting for detectability given changes in landcover over time.
+\par In this paper, I described how to model BBS data at the point (or stop) level to produce trend estimates using similar model structure to current route-level trend estimates as in \citet{smith_spatially_2023}.
+I then expanded upon this point-level trend model by introducing a detectability term that allows for detection probability to explicitly be accounted for in BBS trend estimation.
+Because the detection probabilities are estimated based on data in a previous model \citep{edwards_point_2023}, I used a variance propagation technique put forth by \citet{bravington_variance_2021} to explicitly incorporate the detection probability error into the trend model.
+Finally, I applied these models in a case study by examining Ovenbird trends in Canada from 2010 - 2022, and assessed how these trends differ by accounting for detectability given changes in landcover over time.
 Overall, Canada-wide trends of Ovenbird were similar among models.
 However, point-based models incorporating detectability offsets revealed local biases that can help guide conservation management of this species.
 
 \par The following will mostly discuss the results of the Ovenbird case study and implications of the differences in trends between each of the models.
-However, we will suggest future avenues and applications of this extended BBS model, including implications for data integration.
+However, I will suggest future avenues and applications of this extended BBS model, including implications for data integration, in the next chapter.
 
 \subsection{Point-level Model as a Reasonable Proxy for Route-level Model}
 
 \par Overall, the point-level trend model served as a reasonable proxy for the status-quo route-level trend model for Ovenbird.
-We expected that indices from the route-level model should be approximately 50x the indices from the point-level model within the same stratum, because there are typically 50 points per route.
-We found this to be mostly true, although the ratio tended to be slightly greater than 50.
+I expected that indices from the route-level model should be approximately 50x the indices from the point-level model within the same stratum, because there are typically 50 points per route.
+I found this to be mostly true, although the ratio tended to be slightly greater than 50.
 However, this is likely because 50 is the maximum number of points that would be run per route, and any difference from 50 is necessarily fewer points per route, meaning that the ratio may be slightly higher.
-When considering trend, we expected an approximate 1-to-1 relationship between the two models, and instead we found a slightly less than 1-to-1 correspondence.
+When considering trend, I expected an approximate 1-to-1 relationship between the two models, and instead I found a slightly less than 1-to-1 correspondence.
 That is to say, trends estimated from a point-level model tend to be slightly higher than trends estimated from a route-level model.
-In any case, because our overall goal of this paper was to incorporate detectability into the BBS trend model, our main point of comparison is between trends (and indices) produced by a model that includes detectability versus the status quo model currently used by the BBS.
-However, because we cannot directly include detectability into the route model, we needed to have the baseline point-level model as a proxy for the route-level indices and trends.
-We felt as though the point level model served as a good proxy in the case of the Ovenbird in Canada, but future studies should seek to include far more species and assess whether these metrics tend to hold for these other species. 
+In any case, because the overall goal of this paper was to incorporate detectability into the BBS trend model, the main point of comparison was between trends (and indices) produced by a model that includes detectability versus the status quo model currently used by the BBS.
+However, because I cannot directly include detectability into the route model, I needed to have the baseline point-level model as a proxy for the route-level indices and trends.
+I felt as though the point level model served as a good proxy in the case of the Ovenbird in Canada, but future studies should seek to include far more species and assess whether these metrics tend to hold for these other species. 
 
 \subsection{Incorporating Detectability Information into BBS Trend Estimates}
 
-\par We created two models that accounted for detectability.
+\par I created two models that accounted for detectability.
 The model in Equation \ref{bbs-detect} only accounts for detectability and treats each estimate of detectability as a fixed, true point, whereas Equation \ref{bbs_varprop} incorporates information about the uncertainty around the estimated detection probabilities for each point.
-We were most interested in the model that incorporates detectability as well as uncertainty, but we retained output from the detectability-only model as a basis for the variance propagation diagnostics \citep{bravington_variance_2021}.
+I was most interested in the model that incorporates detectability as well as uncertainty, but I retained output from the detectability-only model as a basis for the variance propagation diagnostics \citep{bravington_variance_2021}.
 
 \par At the country-level, the overall trend of Ovenbird population estimates did not drastically change, but there was a slight decrease in the magnitude of the trend from the POINT model to the VARPROP model.
 That is, the VARPROP model estimated a trend of 0.82, with a 90\% credible interval of [0.26, 1.39], whereas the POINT model estimated a trend of 1.15, with a 90\% credible interval of [0.57, 1.73].
@@ -457,7 +457,7 @@ Thus, the effects of changes in landcover on the effects of detectability effect
 Estimates of fine-scale trends in each stratum may be biased by these changes in detectability, but the biases are both positive and negative and on average mostly cancel each other out at a broad scale. 
 
 \par Detectability information made the most difference in trend estimates at the finer spatial scale.
-In our example above, a particular route that had a high level of forest coverage loss (indeed, the most in our analysis) showed a high difference in trends when considering detectability.
+In the example above, a particular route that had a high level of forest coverage loss (indeed, the most in our analysis) showed a high difference in trends when considering detectability.
 In sampling areas with a large loss in forest coverage over time, it would be expected that population loss of forest-dwelling species (such as Ovenbird) would occur with the loss of habitat.
 However, when the sampling point was highly forested, at the beginning of the time series, the higher number of Ovenbirds may not be as detectable due to the higher forest coverage.
 Then, later in the time series, when the sampling point has become more open (but still has some habitat intact), Ovenbirds will be more detectable.
@@ -466,20 +466,20 @@ Therefore, by applying detectability information to this seemingly flat trend, t
 \subsection{Assessment of Variance Propagation Diagnostics}
 
 \par \citet{bravington_variance_2021} provides ways to assess whether the variance propagation component is, in fact, only propagating the variance forward from the detection equations into the GAM, or whether there are potential confounds with detectability that manifests in the GAM.
-We assessed two of these criteria.
+I assessed two of these criteria.
 
-We first compared the indices generated from the VARPROP model to the ``naive" indices generated from the DETECT model, with the prediction that the indices should be close to a one-to-one correspondence.
-Overall, we found a close correspondence between the two sets of indices, which tended to have an increase in variance with larger indices.
-This is generally what we would expect with a negative binomial response with a log offset.
+I first compared the indices generated from the VARPROP model to the ``naive" indices generated from the DETECT model, with the prediction that the indices should be close to a one-to-one correspondence.
+Overall, I found a close correspondence between the two sets of indices, which tended to have an increase in variance with larger indices.
+This is generally what one would expect with a negative binomial response with a log offset.
 
-We then assessed the posterior estimates of the variance propagation terms $\zeta$ and $\xi$; with no confounds, estimates of these terms should be close to zero, therefore only propagating forward the variance from detectability terms \citep{bravington_variance_2021}.
+I then assessed the posterior estimates of the variance propagation terms $\zeta$ and $\xi$; with no confounds, estimates of these terms should be close to zero, therefore only propagating forward the variance from detectability terms \citep{bravington_variance_2021}.
 While the $\zeta$ terms (associated with availability components) were generally estimated around 0, the $\xi$ terms showed quite a bit of differences from zero, particularly with the terms associated with forest coverage.
 This implies that there may be a systematic bias or confound between detectability as it pertains to forest coverage, and space \citep{bravington_variance_2021}.
 This could possibly be explained by the lack of detail used in vegetation coverage type when considering detectability.
 That is to say, while the detectability estimates from NA-POPS only considers forest coverage as a percentage, it does not account for differences in forest type (e.g., coniferous vs deciduous vs mixed).
 Additionally, in more open habitats, there is no differentiation between, for example, forest that gets converted to grassland versus forest that gets converted to urban land.
 Previous studies have shown differences in detectability via sound attenuation based on different habitat types \citep{schieck_biased_1997}, implying that a simple ``open" versus ``closed" may not quite be sufficient in explaining detectability.
-Thus, we suggest future iterations of detectability estimates from NA-POPS, and future applications of those detectability estimates to datasets such as the BBS, consider habitat types in addition to the amount of open or closed forest.
+Thus, I suggest future iterations of detectability estimates from NA-POPS, and future applications of those detectability estimates to datasets such as the BBS, consider habitat types in addition to the amount of open or closed forest.
 It would then be worth investigating whether that eliminates the bias seen in Figure \ref{fig:varprop-diagnostics}.
 
 \subsection{Call to Action: The Need for BBS Point Locations}
@@ -496,6 +496,6 @@ By knowing the coordinates of the point-count centre, one can extract informatio
 However, BBS point locations generally seem to be a difficult dataset to come by, thereby limiting this ability to explictly include landcover information into detectability corrections.
 Of course, there are properties of the BBS that can easily be inferred based on the data that are available, including start time of point counts, day of the year the route (and therefore points) were run, the fact that all the points are a roadside survey, and the fact that all the points are three minutes in duration and have a maximum survey radius of 400 m.
 If, for example, a species had a Roadside-only model chosen as the best explanatory model for perceptibility in NA-POPS, then a researcher may not need information about exact locations of BBS points.
-However, we have clearly shown here how species trends can be drastically affected by changes in detectability, due to changes in forest coverage in the landscape.
-Thus, we suggest agencies who manage the BBS to consider data management and data releases that include all information at the point level, including point locations and changes to point locations over the year.
+However, I have clearly shown here how species trends can be drastically affected by changes in detectability, due to changes in forest coverage in the landscape.
+Thus, I suggest agencies who manage the BBS to consider data management and data releases that include all information at the point level, including point locations and changes to point locations over the year.
 Only then can we have a mechanistic and holistic understanding of the interactions between the landscape, detectability, and the number of species that BBS observers are observing.
